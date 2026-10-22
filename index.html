@@ -30,7 +30,7 @@ p{margin:0}
 .copy strong{font-weight:650}
 
 /* HUD: name + the day's timeline. No separate clock any more. */
-.hud{position:fixed;left:0;right:0;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px var(--gr) 14px var(--gl);background:var(--bg)}
+.hud{position:fixed;left:0;right:0;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px var(--gr) 14px var(--gl);background:var(--bg);color:var(--fg)}
 .hud b{font:700 17px var(--f-body);letter-spacing:-.01em}
 .tl{display:flex;gap:4px}
 .tl a{font:500 11px/1 var(--f-mono);text-decoration:none;color:var(--dim);padding:7px 10px;border-radius:999px;font-variant-numeric:tabular-nums;transition:background .5s cubic-bezier(.22,1,.36,1),color .5s cubic-bezier(.22,1,.36,1);white-space:nowrap}
@@ -577,6 +577,20 @@ const draw={
  }
 };
 
+/* ---------- the header takes the colour of whatever sits under it (page light, or a work panel) ---------- */
+const hudEl=$('.hud'); let hudKey='';
+scenes.forEach(o=>{ const st=o.panel&&o.panel.getAttribute('style')||''; const m=st.match(/--pbg:(#[0-9A-Fa-f]{6})/), n=st.match(/--pfg:(#[0-9A-Fa-f]{6})/); o.pbg=m?hex(m[1]):null; o.pfg=n?hex(n[1]):null; });
+function hudTint(){
+  const y=hudEl.offsetHeight*.5; let v=0, P=null;
+  for(const o of scenes){ if(!o.pbg) continue; const r=o.sc.querySelector('.stage').getBoundingClientRect();
+    if(r.top<=y && r.bottom>y){ v=reduce?0:(+o.panel.style.opacity||0); P=o; break; } }
+  const s=hudEl.style;
+  if(!P || v<.01){ if(hudKey){ ['--bg','--fg','--dim','--rule'].forEach(k=>s.removeProperty(k)); hudKey=''; } return; }
+  const bg=mixc(colState.bg,P.pbg,v), fg=mixc(colState.fg,P.pfg,v), key=bg.map(Math.round).join()+fg.map(Math.round).join();
+  if(key===hudKey) return; hudKey=key;
+  s.setProperty('--bg',rgb(bg)); s.setProperty('--fg',rgb(fg)); s.setProperty('--dim',rgba(fg,.62)); s.setProperty('--rule',rgba(fg,.22));
+}
+
 /* ---------- the loop ---------- */
 let last=performance.now();
 function tick(now){
@@ -593,6 +607,7 @@ function tick(now){
       draw[o.k](o,o.p,t);
     }
   }
+  hudTint();
   requestAnimationFrame(tick);
 }
 if(reduce){ for(const o of scenes){ draw[o.k](o,.40,0); $('.art',o.sc).style.transform='none'; op(o.cap,1); tf(o.cap,'none');
