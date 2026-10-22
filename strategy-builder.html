@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Strategy Builder Case Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,100..900&family=Hanken+Grotesk:ital,wght@0,300..800;1,300..800&family=Martian+Mono:wdth,wght@75..112,300..600&display=swap">
+<style>
+/* Layout: a case study told like a presentation. One pinned stage; each scroll "beat" is a slide with one claim on the left
+   and one piece of evidence on the right. A single phone persists across slides: screens cross-fade, it zooms into the detail
+   being discussed and draws callouts. Morning palette and type from the homepage, unchanged. Single-theme by design. */
+:root{
+  color-scheme:light;
+  --bg:#F3F5F1; --fg:#0E1620; --dim:rgba(14,22,32,.62); --rule:rgba(14,22,32,.18); --panel:#E6EAE2;
+  --up:#0F8A5F; --down:#D2452B; --flag:#9A5B00; --flag-bg:#FFEFD0; --hot:#FF7A5C;
+  --f-clock:"Anybody", "Arial Narrow", sans-serif;
+  --f-body:"Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --f-mono:"Martian Mono", ui-monospace, Menlo, monospace;
+  --gl:max(16px, env(safe-area-inset-left,0px)); --gr:max(16px, env(safe-area-inset-right,0px));
+  --ease:cubic-bezier(.22,1,.36,1); --cam:cubic-bezier(.76,0,.24,1);
+}
+*{box-sizing:border-box}
+html{overflow-x:clip}
+html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!important}.lenis.lenis-stopped{overflow:hidden}
+body{margin:0;background:var(--bg);color:var(--fg);font:18px/1.55 var(--f-body);padding-left:var(--gl);padding-right:var(--gr)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:60}
+a{color:inherit} button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--fg);outline-offset:4px}
+.mono{font:400 11px/1.45 var(--f-mono);letter-spacing:.02em;text-transform:uppercase}
+.dim{color:var(--dim)}
+h1,h2{font-family:var(--f-clock);font-weight:760;letter-spacing:-.02em;line-height:.9;margin:0;text-wrap:balance}
+p{margin:0}
+
+/* arrival: same frame the homepage shutter ends on, then it lifts */
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation:none}
+.intro{position:fixed;inset:0;z-index:100;background:#F3F5F1;color:#0E1620;padding:env(safe-area-inset-top,0px) var(--gr) 90px var(--gl)}
+.intro .in{max-width:1280px;margin:0 auto}
+.intro .ibar{display:flex;justify-content:space-between;align-items:center;padding-block:16px;gap:12px}
+.intro .ibtn{border:1.5px solid #0E1620;border-radius:999px;padding:8px 16px}
+.intro .iff{font:800 clamp(80px,16vw,260px)/.8 var(--f-clock);font-stretch:50%;font-variant-numeric:tabular-nums;margin-top:20px}
+.intro h2{font:760 clamp(46px,7.4vw,120px)/.88 var(--f-clock);font-stretch:70%;letter-spacing:-.025em;max-width:15ch;margin-top:28px;text-wrap:balance}
+/* HUD */
+.hud{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);z-index:40;display:flex;align-items:center;gap:18px;padding:14px var(--gr) 14px var(--gl);background:var(--bg)}
+.hud a{text-decoration:none}
+.hud .t{margin-left:auto;display:flex;gap:14px;align-items:center;font:600 13px var(--f-mono);font-variant-numeric:tabular-nums}
+.hud .bar{position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--rule)}
+.hud .bar b{position:absolute;left:0;top:0;bottom:0;background:var(--fg);width:100%;transform-origin:left;transform:scaleX(0);will-change:transform}
+
+/* ---------- deck (desktop) ---------- */
+.deck{position:relative;margin-inline:calc(-1*var(--gl)) calc(-1*var(--gr))}
+#beats{position:absolute;inset:0;pointer-events:none}
+.beat{height:100vh;scroll-snap-align:start}
+.pin{position:sticky;top:0;height:100vh;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);padding:calc(70px + env(safe-area-inset-top,0px)) calc(var(--gr) + 72px) 36px max(var(--gl),clamp(24px,7vw,112px));gap:clamp(24px,4vw,64px);z-index:1}
+.copy{position:relative;align-self:center;height:min(560px,70vh)}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:22px;opacity:0;transform:translateY(36px);transition:opacity .22s ease-in,transform .3s ease-in;pointer-events:none}
+.slide.on{opacity:1;transform:none;pointer-events:auto;transition:opacity .5s var(--ease) .26s,transform .8s var(--ease) .26s}
+.slide.out{opacity:0;transform:translateY(-24px)}
+.slide .k{display:flex;gap:12px;align-items:baseline;border-top:1px solid var(--rule);padding-top:12px}
+.slide .k b{font:700 12px var(--f-mono)}
+.slide h1{font-size:clamp(52px,7.4vw,124px);font-stretch:62%}
+.slide h2{font-size:clamp(40px,4.9vw,84px);font-stretch:66%}
+.slide p{max-width:44ch;font-size:clamp(17px,1.35vw,20px);color:var(--dim)}
+.slide p strong{color:var(--fg);font-weight:600}
+.tag{display:inline-flex;width:max-content;gap:8px;align-items:center;border-radius:999px;padding:5px 12px;font:600 11px var(--f-mono);text-transform:uppercase;letter-spacing:.03em}
+.tag.no{background:color-mix(in srgb,var(--down) 14%,transparent);color:#A3311C}
+.tag.yes{background:color-mix(in srgb,var(--up) 14%,transparent);color:#0B6B49}
+.meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 24px;border-top:1px solid var(--fg);padding-top:14px;max-width:560px}
+.meta div{display:grid;gap:2px}
+.meta span:last-child{font-size:15px;line-height:1.35}
+
+/* stage */
+.stage{position:relative;align-self:stretch}
+.device{position:absolute;left:50%;top:50%;height:min(80vh,780px);aspect-ratio:.47/1;transform:translate(-50%,-50%);transition:transform 1s var(--cam),opacity .45s var(--ease) .25s}
+.device.away{opacity:0;transform:translate(-50%,-50%) translateX(18%) scale(.92);transition:transform .5s ease-in,opacity .22s ease-in}
+.device.tilt{transform:translate(-50%,-50%) rotate(4deg)}
+.shell{position:absolute;inset:0;background:#05070A;border-radius:42px;padding:9px;box-shadow:0 60px 90px -50px rgba(14,22,32,.75),0 0 0 1px rgba(14,22,32,.2)}
+.screen{position:relative;width:100%;height:100%;border-radius:34px;overflow:hidden;background:#fff}
+.zoom{position:absolute;inset:0;transition:transform 1.1s var(--cam);will-change:transform}
+.zoom img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center;opacity:0;transition:opacity .2s ease-in}
+.zoom img.show{opacity:1;transition:opacity .45s var(--ease) .2s}
+.sheet{position:absolute;left:0;right:0;bottom:0;width:100%;transform:translateY(105%);transition:transform .9s var(--cam);box-shadow:0 -20px 40px -20px rgba(0,0,0,.4);border-radius:18px 18px 0 0}
+.sheet.up{transform:none}
+.scrim{position:absolute;inset:0;background:rgba(5,7,10,.45);opacity:0;transition:opacity .7s}
+.scrim.on{opacity:1}
+.label{position:absolute;left:50%;top:-44px;transform:translateX(-50%);opacity:0;transition:opacity .4s}
+.label.on{opacity:0}
+/* callouts */
+.calls{position:absolute;inset:9px;pointer-events:none}
+.call{position:absolute;width:0;height:0;opacity:0;transition:opacity .45s}
+.call.on{opacity:1}
+.call i{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:var(--hot);box-shadow:0 0 0 6px color-mix(in srgb,var(--hot) 30%,transparent)}
+.call em{position:absolute;top:0;height:1px;background:var(--fg);transform-origin:left;transform:scaleX(0);transition:transform .6s var(--ease) .15s}
+.call.on em{transform:scaleX(1)}
+.call.l em{transform-origin:right}
+.call span{position:absolute;top:-14px;width:max-content;max-width:170px;font:600 14px var(--f-body);background:var(--fg);color:var(--bg);padding:5px 10px;border-radius:6px;opacity:0;transform:translateY(6px);transition:opacity .4s .45s,transform .5s var(--ease) .45s}
+.call.on span{opacity:1;transform:none}
+/* non-phone visuals */
+.alt{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transform:translateY(30px) scale(.98);transition:opacity .2s ease-in,transform .3s ease-in;pointer-events:none}
+.alt.on{opacity:1;transform:none;transition:opacity .55s var(--ease) .3s,transform .9s var(--ease) .3s}
+.cards{display:grid;gap:14px;width:min(100%,520px)}
+.cards div{background:var(--panel);border-radius:6px;padding:22px 24px;display:grid;gap:6px;transform:translateX(40px);opacity:0;transition:transform .8s var(--ease),opacity .5s}
+.alt.on .cards div{transform:none;opacity:1}
+.alt.on .cards div:nth-child(2){transition-delay:.12s}.alt.on .cards div:nth-child(3){transition-delay:.24s}
+.cards b{font:760 clamp(28px,2.6vw,40px)/.95 var(--f-clock);font-stretch:72%}
+.stat{width:min(100%,560px);height:min(100%,560px);background:var(--fg);color:var(--bg);display:grid;align-content:center;gap:18px;padding:clamp(28px,4vw,56px);border-radius:6px}
+.stat .n{font:800 clamp(120px,15vw,250px)/.8 var(--f-clock);font-stretch:54%;color:var(--hot);font-variant-numeric:tabular-nums}
+.stat .mono{color:rgba(243,245,241,.62)}
+.pair{display:flex;gap:28px;align-items:center;height:100%}
+.pair .shell{position:relative;inset:auto;height:min(66vh,640px);aspect-ratio:.47/1}
+.pair .shell img{width:100%;height:100%;object-fit:cover;object-position:top;border-radius:34px;display:block}
+.pair figure{margin:0;display:grid;gap:12px;justify-items:center}
+.pair figure:nth-child(2){transform:translateY(40px)}
+.desk2{position:relative;width:100%;max-width:780px;padding:0 6% 14% 0}
+.desk2 .dw{margin:0;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px rgba(14,22,32,.1),0 50px 90px -50px rgba(14,22,32,.6)}
+.desk2 .dw img{display:block;width:100%}
+.desk2 .dw.sm{position:absolute;right:0;bottom:0;width:44%}
+.lc .desk2{max-width:100%}
+.desk{width:100%;max-width:720px;aspect-ratio:16/10;border-radius:10px;background:#05070A;padding:10px 10px 22px;box-shadow:0 60px 90px -50px rgba(14,22,32,.75)}
+.desk div{width:100%;height:100%;border-radius:4px;background:repeating-linear-gradient(135deg,#E6EAE2 0 12px,#DCE1D7 12px 24px);display:grid;place-items:center;text-align:center;padding:24px;color:var(--fg)}
+.outs{display:grid;gap:0;width:min(100%,560px);border-top:1px solid var(--fg)}
+.outs div{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 22px;align-items:end;padding-block:18px;border-bottom:1px solid var(--rule)}
+.outs .n{font:800 clamp(56px,6vw,96px)/.85 var(--f-clock);font-stretch:58%;grid-row:span 2;font-variant-numeric:tabular-nums}
+.flag{display:inline-flex;width:max-content;background:var(--flag-bg);color:var(--flag);border-radius:4px;padding:3px 8px;font:600 10px var(--f-mono);text-transform:uppercase;letter-spacing:.04em}
+
+/* rail */
+.rail{position:absolute;right:var(--gr);top:50%;transform:translateY(-50%);display:grid;gap:6px;z-index:5}
+.rail button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:flex-end;gap:10px;height:16px}
+.rail button i{width:14px;height:2px;background:var(--rule);transition:width .4s var(--ease),background .3s}
+.rail button span{font:500 10px var(--f-mono);text-transform:uppercase;opacity:0;transform:translateX(6px);transition:opacity .25s,transform .3s;white-space:nowrap;color:var(--dim)}
+.rail button:hover span,.rail button:focus-visible span{opacity:1;transform:none}
+.rail button.on i{width:30px;background:var(--fg)}
+.rail button.on span{color:var(--fg)}
+
+/* outro */
+.outro{position:relative;z-index:2;background:var(--bg);max-width:1240px;margin:0 auto;padding-block:clamp(80px,10vw,140px) calc(56px + env(safe-area-inset-bottom,0px));display:grid;gap:18px;scroll-snap-align:start}
+.outro a.go{text-decoration:none;display:grid;gap:8px;border-top:1px solid var(--fg);padding-top:20px}
+.outro a.go h2{font-size:clamp(46px,7vw,112px);font-stretch:66%;transition:transform .6s var(--ease)}
+.outro a.go:hover h2{transform:translateX(16px)}
+.outro .foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+/* ---------- linear (phones, reduced motion) ---------- */
+.linear{display:none}
+@media (max-width:900px), (max-height:560px){
+  html{scroll-snap-type:none}
+  .hud .mono.dim{display:none}
+  .deck{display:none}
+  .linear{display:grid;grid-template-columns:minmax(0,1fr);gap:0;padding-top:calc(64px + env(safe-area-inset-top,0px))}
+  .lc{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;padding-block:44px;border-top:1px solid var(--rule)}
+  .lc:first-child{border-top:0}
+  .lc h1{font-size:clamp(46px,13vw,72px);font-stretch:62%}
+  .lc h2{font-size:clamp(36px,10vw,56px);font-stretch:66%}
+  .lc p{color:var(--dim)}
+  .lc .k{display:flex;gap:10px}
+  .lc .k b{font:700 12px var(--f-mono)}
+  .lphone{width:min(72vw,280px);background:#05070A;border-radius:30px;padding:7px}
+  .lphone img{display:block;width:100%;border-radius:24px}
+  .lnotes{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+  .lnotes li{display:flex;gap:10px;align-items:baseline;font-weight:600}
+  .lnotes li::before{content:"";flex:0 0 10px;height:10px;border-radius:50%;background:var(--hot);transform:translateY(1px)}
+  .lpair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .lpair img{width:100%;border-radius:18px;border:6px solid #05070A}
+  .lc .stat .n{font-size:min(30vw,140px)}
+  .lc .desk{max-width:100%}
+  .lc .alt{position:static;opacity:1;transform:none;display:block}
+  .lc .stat{width:auto;height:auto;padding:24px}
+  .lc .stat .n{font-size:min(26vw,120px)}
+  .lc .outs div{grid-template-columns:minmax(0,1fr)}
+  .lc .outs .n{grid-row:auto}
+  .lc .cards div{opacity:1;transform:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01s!important;transition-delay:0s!important}
+}
+</style>
+
+<div class="intro" id="intro" aria-hidden="true"><div class="in">
+  <div class="ibar"><span class="mono">Case study</span><span class="ibtn mono">Back to the day</span></div>
+  <div class="iff">09:15</div>
+  <h2>Bringing strategy trading in-house.</h2>
+</div></div>
+<header class="hud">
+  <a class="mono" href="./#s0915" data-back data-return>← Back to the day</a>
+  <span class="mono dim">Strategy Builder</span>
+  <span class="t"><span class="dim" id="count">01 / 17</span><span id="clk">09:15</span></span>
+  <span class="bar"><b id="bar"></b></span>
+</header>
+
+<section class="deck" id="deck" aria-label="Case study, told in slides">
+  <div class="pin">
+    <div class="copy" id="copy"></div>
+    <div class="stage" id="stage" aria-hidden="true">
+      <div class="device" id="device">
+        <span class="label" id="label"></span>
+        <div class="shell"><div class="screen"><div class="zoom" id="zoom"></div><div class="scrim" id="scrim"></div><img class="sheet" id="sheet" src="img/sb-adjust.jpg" alt=""></div></div>
+        <div class="calls" id="calls"></div>
+      </div>
+      <div id="alts"></div>
+    </div>
+    <nav class="rail" id="rail" aria-label="Slides"></nav>
+  </div>
+  <div id="beats"></div>
+</section>
+
+<main class="linear" id="linear" aria-label="Case study"></main>
+
+<section class="outro">
+  <span class="mono dim">Next, at 11:42</span>
+  <a class="go" href="pnl-alerts.html"><h2>When a target lasts two ticks →</h2><span class="dim">P&amp;L Alerts with auto-exit · Android, iOS</span></a>
+  <div class="foot mono dim"><a href="./#s0915" data-back data-return>← Back to the day</a><span>Sources: SEBI studies on individual traders in equity derivatives, FY25–FY26</span></div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* motion-principles §1: page glide (wheel only) + damped progress, one rAF loop */
+const lenis=(!reduce&&window.Lenis)?new Lenis({duration:1.4,easing:t=>Math.min(1,1.001-Math.pow(2,-10*t)),smoothWheel:true,syncTouch:false}):null;
+const toY=(y,o)=>{ if(lenis) lenis.scrollTo(y,Object.assign({duration:1.2,easing:t=>t<.5?8*t*t*t*t:1-Math.pow(-2*t+2,4)/2},o||{})); else scrollTo({top:y,behavior:reduce?'auto':'smooth'}); };
+const toTop=()=>{ if(lenis) lenis.scrollTo(0,{immediate:true,force:true}); else scrollTo(0,0); };
+const NEEDS='Needs your publish approval';
+/* each slide: one claim (copy) + one piece of evidence (v) */
+const S=[
+ {k:'Case study',h1:'Bringing strategy trading in-house.',p:"Upstox traders could place multi-leg options orders but couldn't see what those legs added up to. So they analysed elsewhere, or traded on instinct. <strong>I designed Upstox's own builder: pick the legs, see the payoff, edit safely, execute.</strong>",meta:1,
+  v:{type:'phone',img:'sb-chain',tilt:1}},
+ {k:'The problem',h:'Traders could place the legs. Not see the strategy.',p:'An options strategy combines several contracts, or legs. Whether it makes money depends on how they interact. Upstox showed nothing about the result: no payoff, no breakeven, no probability of profit.',
+  v:{type:'phone',img:'sb-v-screen',calls:[[50,38,'One leg at a time','r'],[50,62,'No payoff. No breakeven.','l']]}},
+ {k:'So traders',h:'Left, bolted on, or guessed.',p:'They analysed in specialised tools like Opstra, used a third-party payoff graph inside Upstox, or skipped the analysis and traded on gut and FOMO.',
+  v:{type:'cards',items:[['Left','For specialised tools like Opstra, then came back to trade.'],['Bolted on','A third-party payoff graph, inside Upstox.'],['Guessed','Gut and FOMO, no analysis at all.']]}},
+ {k:'Why it matters',h:"Seeing risk before you trade isn't a nice-to-have.",p:'In FY25, SEBI found that most individual traders in equity derivatives lost money. A builder that shows the downside first is the least a broker can do.',
+  v:{type:'stat',n:'90.9%',cap:'of individual F&O traders lost money in FY25 · Source: SEBI'}},
+ {k:'Research',h:'Powerful, dense, or hidden. Traders wanted none of it.',p:'Traders want the payoff upfront. Not all of them know the technicals. Advanced traders build from scratch, others start from a template, and most redeploy the same strategy week after week.',
+  v:{type:'cards',items:[['Sensibull','Powerful, but dense. Small controls cause mis-taps, and mis-taps cost money.'],['Dhan','Tabs keep it clean, but the payoff disappears while you build.'],['Traders','Payoff upfront. Build their own way. Redeploy weekly.']]}},
+ {k:'Decision 1 · existing',tag:['no','Existing · separate screen'],h:'One leg, one form, one trip back.',p:'Legs come from the option chain, a dense table of strikes and prices. The existing flow sent traders to a separate screen for every single leg.',
+  v:{type:'phone',img:'sb-v-screen',label:['no','Existing'],calls:[[50,40,'A new screen for every leg','r'],[50,72,'The chain is nowhere in sight','l']]}},
+ {k:'Decision 1 · tried',tag:['no','Tried · bottom sheet'],h:'Closer, but still in the way.',p:'A bottom sheet kept the chain in sight, just about. It still covered the prices traders were deciding on, so they held choices in their head and kept bouncing between chain and form.',
+  v:{type:'phone',img:'sb-v-sheet',label:['no','Tried'],calls:[[50,30,'The prices you’re deciding on','r'],[50,62,'…covered by the form','l']]}},
+ {k:'Decision 1 · shipped',tag:['yes','Shipped · on the chain'],h:'Build the strategy on the option chain itself.',p:'Traders pick strikes and set lots directly on the chain, and the strategy takes shape right there. <strong>No extra screens, no interruptions, the whole strategy in view.</strong>',
+  v:{type:'phone',img:'sb-chain',label:['yes','Shipped'],zoom:[50,20,1.35],calls:[[21,23,'Buy or sell, on the strike','l'],[82,27,'Lots, set in place','r']]}},
+ {k:'Decision 2 · scope',h:'The core every serious builder shares. Made excellent.',p:'Sensibull had years of features. Matching it on day one would have delayed everything. So: underlying, legs, payoff graph, P&L table, Greeks and adjustments, done properly.',
+  v:{type:'phone',img:'sb-edit',calls:[[50,32,'Legs, editable in place','l'],[50,86,'Payoff, always in view','r']]}},
+ {k:'Decision 2 · payoff',h:'A payoff you never go looking for.',p:'Greeks and the P&L table moved into tabs; the graph stayed fixed. Up to two breakevens shown clearly, more behind a “+more”. Tap anywhere for P&L at that index level.',
+  v:{type:'phone',img:'sb-edit',zoom:[50,100,1.55],calls:[[60,93,'Today vs expiry P&L, on tap','r'],[50,72,'Graph stays put; tabs swap','l']]}},
+ {k:'Decision 2 · adjust',h:'Adjustments sit next to the thing they adjust.',p:'Days to expiry, volatility and range open in a sheet over the graph, not a new screen. And a save button, because traders build before the open and execute at the bell.',
+  v:{type:'phone',img:'sb-edit',sheet:1,calls:[[50,72,'What-if, without leaving the graph','l']]}},
+ {k:'On the web',h:'The same builder, on a wider screen.',p:'I designed the desktop version too. Legs on the left, the payoff always in view on the right, the same what-ifs underneath. It opens from the F&amp;O menu, right next to the option chain.',
+  v:{type:'desktop'}},
+ {k:'Decision 3 · editing',h:"An editor that doesn't surprise you.",p:"Editing a live strategy is where traders get hurt. Changing a strategy removes its stop-loss and target, permanently, and the warning says so. Same strike, opposite side, squares off a leg, and the app asks first.",
+  v:{type:'phone',img:'sb-guard-a',calls:[[24,41,'Buys before sells, in execution order','l'],[86,80,'Optional, and visibly off','r']]}},
+ {k:'Decision 3 · review',h:'Set it, and see it summarised in place.',p:'Entry criteria, stop-loss and alerts are optional. Once set, each is summarised where you set it, in the same format as the order summary.',
+  v:{type:'phone',img:'sb-guard-b',calls:[[40,80,'Summarised where you set it','l'],[88,82,'One switch each','r']]}},
+ {k:'Custom first',h:'Presets as a head start, not the front door.',p:'Advanced traders build from scratch; others start from a template and tweak. We led with custom, and kept presets one tap away.',
+  v:{type:'pair',imgs:[['sb-start','Custom first'],['sb-presets','Presets, second']]}},
+ {k:'Outcome',h:'What changed after launch.',p:'Strategy traders also placed more orders. That’s correlation: active traders adopt tools like this.',
+  v:{type:'outcome'}},
+ {k:"What didn't work",h:'Most people who open it never add a first leg.',p:"Our 2.0 changes didn't move it. My hypothesis: in SEBI's FY26 sample, 93% only ever bought options, so many visitors may be single-leg traders. Next step: split visitors by past trading. If the drop-off sits with them, the fix isn't the builder. It's who we send there.",
+  v:{type:'stat',n:'⅓',cap:'of visitors add a first leg',flag:1}},
+];
+const N=S.length; $('#deck').style.height=(N*100)+'vh';
+
+/* ---- build copy, beats, rail, alts ---- */
+const copy=$('#copy'), beats=$('#beats'), rail=$('#rail'), alts=$('#alts'), lin=$('#linear');
+const metaHTML=`<div class="meta mono"><div><span class="dim">Role</span><span>Sole designer, end to end</span></div><div><span class="dim">Team</span><span>1 PM · 1 backend · 2 frontend · QA</span></div><div><span class="dim">Platforms</span><span>Android, then web and iOS</span></div><div><span class="dim">Shipped</span><span>Android, April 2025</span></div></div><span class="mono dim">Explorations file: enormous. Shipped: what follows.</span>`;
+function altHTML(v){
+  if(v.type==='cards') return `<div class="cards">${v.items.map(([b,t])=>`<div><b>${b}</b><span class="dim">${t}</span></div>`).join('')}</div>`;
+  if(v.type==='stat') return `<div class="stat">${v.flag?`<span class="flag">${NEEDS}</span>`:''}<span class="n">${v.n}</span><span class="mono">${v.cap}</span></div>`;
+  if(v.type==='pair') return `<div class="pair">${v.imgs.map(([i,c])=>`<figure><span class="shell"><img src="img/${i}.jpg" alt="${c}"></span><figcaption class="mono dim">${c}</figcaption></figure>`).join('')}</div>`;
+  if(v.type==='desktop') return `<div class="desk2"><figure class="dw"><img src="img/sb-web-builder.jpg" alt="Desktop Strategy Builder: legs on the left, payoff and what-ifs on the right"></figure><figure class="dw sm"><img src="img/sb-web-entry.jpg" alt="Opening Strategy Builder from the F&amp;O menu on Upstox web"></figure></div>`;
+  if(v.type==='outcome') return `<div class="outs">
+    <div><span class="n">⅓</span><span class="flag">${NEEDS}</span><span>of strategy traders were new to strategy trading on Upstox.</span></div>
+    <div><span class="n">2.5–3×</span><span class="flag">${NEEDS}</span><span>more orders a week from strategy traders than other traders.</span></div>
+    <div><span class="n">30%</span><span class="flag">Unsourced · check at launch</span><span>increase in F&amp;O segment revenue.</span></div></div>`;
+  return '';
+}
+S.forEach((s,i)=>{
+  const k=`<div class="k mono"><b>${String(i+1).padStart(2,'0')}</b><span>${s.k}</span></div>`;
+  const head=s.h1?`<h1>${s.h1}</h1>`:`<h2>${s.h}</h2>`;
+  const tag=s.tag?`<span class="tag ${s.tag[0]}">${s.tag[1]}</span>`:'';
+  const el=document.createElement('div'); el.className='slide'; el.innerHTML=k+tag+head+`<p>${s.p}</p>`+(s.meta?metaHTML:'');
+  copy.appendChild(el); s.el=el;
+  const b=document.createElement('div'); b.className='beat'; beats.appendChild(b); s.beat=b;
+  const r=document.createElement('button'); r.type='button'; r.innerHTML=`<span>${s.k}</span><i></i>`; r.setAttribute('aria-label',`Slide ${i+1}: ${s.k}`);
+  r.onclick=()=>toY(b.offsetTop+$('#deck').offsetTop); rail.appendChild(r); s.r=r;
+  if(s.v.type!=='phone'){ const a=document.createElement('div'); a.className='alt'; a.innerHTML=altHTML(s.v); alts.appendChild(a); s.alt=a; }
+  /* linear version */
+  const lc=document.createElement('section'); lc.className='lc';
+  let vis='';
+  if(s.v.type==='phone') vis=`<span class="lphone"><img src="img/${s.v.img}.jpg" alt=""></span>`+(s.v.sheet?`<span class="lphone"><img src="img/sb-adjust.jpg" alt=""></span>`:'')+(s.v.calls?`<ul class="lnotes">${s.v.calls.map(c=>`<li>${c[2]}</li>`).join('')}</ul>`:'');
+  else if(s.v.type==='pair') vis=`<div class="lpair">${s.v.imgs.map(([i,c])=>`<img src="img/${i}.jpg" alt="${c}">`).join('')}</div>`;
+  else vis=`<div class="alt">${altHTML(s.v)}</div>`;
+  lc.innerHTML=k+tag+head+`<p>${s.p}</p>`+(s.meta?metaHTML:'')+vis; lin.appendChild(lc);
+});
+
+/* ---- phone screens (preload all into the zoom layer) ---- */
+const zoom=$('#zoom'), imgs={};
+[...new Set(S.filter(s=>s.v.type==='phone').map(s=>s.v.img))].forEach(n=>{ const im=new Image(); im.src=`img/${n}.jpg`; im.alt=''; zoom.appendChild(im); imgs[n]=im; });
+
+/* ---- apply a slide ---- */
+const device=$('#device'), calls=$('#calls'), label=$('#label'), sheet=$('#sheet'), scrim=$('#scrim');
+let cur=-1;
+const fmt=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+function go(i){
+  if(i===cur) return; const prev=cur; cur=i; const s=S[i], v=s.v;
+  S.forEach((t,j)=>{ t.el.classList.toggle('on',j===i); t.el.classList.toggle('out',j<i); t.r.classList.toggle('on',j===i); t.alt&&t.alt.classList.toggle('on',j===i); });
+  $('#count').textContent=`${String(i+1).padStart(2,'0')} / ${N}`; $('#clk').textContent=fmt(555+i); 
+  const phone=v.type==='phone';
+  device.classList.toggle('away',!phone); device.classList.toggle('tilt',!!(phone&&v.tilt));
+  calls.innerHTML='';
+  if(!phone) return;
+  Object.entries(imgs).forEach(([n,im])=>im.classList.toggle('show',n===v.img));
+  const [ox,oy,sc]=v.zoom||[50,50,1];
+  zoom.style.transformOrigin=`${ox}% ${oy}%`; zoom.style.transform=`scale(${sc})`;
+  sheet.classList.toggle('up',!!v.sheet); scrim.classList.toggle('on',!!v.sheet);
+  label.className='label tag '+(v.label?v.label[0]+' on':''); label.textContent=v.label?v.label[1]:'';
+  /* callouts land after the zoom settles */
+  const delay=(prev>=0 && (S[prev].v.img!==v.img || (S[prev].v.zoom||[]).join()!==(v.zoom||[]).join()))?650:250;
+  (v.calls||[]).forEach(([x,y,t,side],n)=>{
+    const X=ox+(x-ox)*sc, Y=oy+(y-oy)*sc; if(X<0||X>100||Y<0||Y>100) return;
+    const c=document.createElement('div'); c.className='call '+(side==='l'?'l':'r'); c.style.left=X+'%'; c.style.top=Y+'%';
+    const w=calls.clientWidth, px=X/100*w, reach=side==='l'? px+28 : (w-px)+28;
+    c.innerHTML=`<em style="${side==='l'?`right:0;width:${reach}px`:`left:0;width:${reach}px`}"></em><i></i><span style="${side==='l'?`right:${reach+6}px`:`left:${reach+6}px`}">${t}</span>`;
+    calls.appendChild(c); setTimeout(()=>c.classList.add('on'),delay+n*220);
+  });
+}
+/* which beat is in view */
+let ready=false;
+function onScroll(){
+  if(!ready) return;
+  const d=$('#deck'); if(getComputedStyle(d).display==='none') return;
+  const y=scrollY-d.offsetTop+innerHeight*.5; const i=Math.max(0,Math.min(N-1,Math.floor(y/innerHeight)));
+  go(i);
+}
+addEventListener('scroll',onScroll,{passive:true}); addEventListener('resize',()=>{const c=cur;cur=-1;go(Math.max(0,c));});
+/* always start at slide 1; the intro hands over to it */
+try{ history.scrollRestoration='manual'; }catch(_){}
+scrollTo(0,0);
+/* the artifact viewer can carry the homepage's scroll position into this page after load.
+   Until the reader scrolls themselves, any scroll that arrives is put back to the top. */
+let userMoved=false; const t0=performance.now();
+['wheel','touchstart','keydown','pointerdown'].forEach(ev=>addEventListener(ev,()=>{userMoved=true;},{passive:true,capture:true}));
+addEventListener('scroll',()=>{ if(!userMoved && performance.now()-t0<5000 && scrollY>0){ toTop(); if(ready){ cur=-1; go(0); } } },{passive:true});
+addEventListener('load',()=>{ if(!userMoved) toTop(); });
+const intro=$('#intro');
+function lift(){
+  if(!intro.isConnected) return;
+  if(reduce){ intro.remove(); if(!userMoved) toTop(); ready=true; cur=-1; go(0); return; }
+  intro.firstElementChild.animate([{opacity:1,transform:'none'},{opacity:0,transform:'translateY(-48px)'}],{duration:450,easing:'cubic-bezier(.65,0,.15,1)',fill:'forwards'});
+  const a=intro.animate([{clipPath:'inset(0 0 0 0)'},{clipPath:'inset(0 0 100% 0)'}],{duration:850,delay:180,easing:'cubic-bezier(.75,0,.15,1)',fill:'forwards'});
+  setTimeout(()=>{ if(!userMoved) toTop(); ready=true; cur=-1; go(0); },160);
+  a.onfinish=()=>intro.remove();
+}
+Promise.race([ (document.fonts?document.fonts.ready:Promise.resolve()), new Promise(r=>setTimeout(r,700)) ]).then(()=>setTimeout(lift,120));
+
+/* the loop */
+const barEl=$('#bar'); let bp=0, last=performance.now(), still=0, snapped=true, lastY=scrollY;
+function tick(now){ const dt=Math.min(.1,(now-last)/1000); last=now; if(lenis) lenis.raf(now);
+  const d=$('#deck'); const on=getComputedStyle(d).display!=='none';
+  if(on){ const raw=Math.max(0,Math.min(1,(scrollY-d.offsetTop+innerHeight*.5)/(N*innerHeight)));
+    bp+= (raw-bp)*(reduce?1:1-Math.exp(-dt/.32)); barEl.style.transform=`scaleX(${bp.toFixed(4)})`;
+    /* soft snap: once scrolling settles, glide to the nearest slide if we're close to it */
+    if(Math.abs(scrollY-lastY)<.5){ still+=dt; } else { still=0; snapped=false; } lastY=scrollY;
+    if(ready && !snapped && still>.18 && userMoved){ snapped=true; const y=scrollY-d.offsetTop; const i=Math.round(y/innerHeight); const tgt=d.offsetTop+i*innerHeight;
+      if(i>=0&&i<N&&Math.abs(tgt-scrollY)>2&&Math.abs(tgt-scrollY)<innerHeight*.35) toY(tgt,{duration:.8}); }
+  }
+  requestAnimationFrame(tick); }
+requestAnimationFrame(tick);
+
+/* keyboard: arrows move one slide */
+addEventListener('keydown',e=>{ if(getComputedStyle($('#deck')).display==='none') return;
+  if(['ArrowDown','ArrowRight','PageDown'].includes(e.key)&&cur<N-1){ e.preventDefault(); S[cur+1].r.click(); }
+  if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)&&cur>0){ e.preventDefault(); S[cur-1].r.click(); } });
+
+/* back links return to where you were on the day */
+document.querySelectorAll('[data-back]').forEach(a=>a.addEventListener('click',e=>{ try{ if(document.referrer && new URL(document.referrer).origin===location.origin && history.length>1 && a.hasAttribute('data-return')){ e.preventDefault(); history.back(); } }catch(_){} }));
+})();
+</script>
+
+</html>
