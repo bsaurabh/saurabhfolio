@@ -169,7 +169,7 @@ button{font:inherit;color:inherit}
 .bi.pay{background:#FBFBFD;border-radius:14px;padding:10px;width:200px}
 .bi.pay svg{display:block;width:100%;height:auto}
 .burst .src{position:absolute;left:50%;bottom:0;width:120px;height:4px;border-radius:2px;background:var(--rule);transform:translateX(-50%)}
-.panel{padding-bottom:32px}
+.panel{padding-bottom:44px}
 .hud b{white-space:nowrap;flex:none}
 @media (max-width:1180px){.tl a span{display:none}}
 .hud .cv{flex:none;text-decoration:none;color:var(--fg);border:1px solid var(--rule);border-radius:999px;padding:7px 12px;transition:background .45s cubic-bezier(.22,1,.36,1),color .45s cubic-bezier(.22,1,.36,1)}
@@ -663,6 +663,22 @@ addEventListener('keydown',e=>{ if(e.key==='Escape'&&!cs.hidden) closeCase(); })
 /* coming back from a case page restores the shutter state */
 addEventListener('pageshow',()=>{ cs.hidden=true; root.style.overflow=''; window.__lenis&&window.__lenis.start(); });
 
+
+/* fit: if a work panel is taller than the screen (short phones, browser bars showing), shrink its contents to fit, never clip */
+function fitPanels(){
+  const boxes=[]; document.querySelectorAll('.panel').forEach(p=>{ const subs=p.querySelectorAll(':scope > .sub'); if(subs.length) subs.forEach(s=>boxes.push(s)); else boxes.push(p); });
+  boxes.forEach(b=>{ const kids=[...b.children]; kids.forEach(k=>{k.style.zoom=''; k.querySelectorAll('.mock').forEach(m=>m.style.zoom='')});
+    const cs=getComputedStyle(b), pad=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom);
+    const span=()=>{ const vis=kids.filter(k=>k.offsetHeight); if(!vis.length) return 0; const f=vis[0], l=vis[vis.length-1]; return (l.offsetTop+l.offsetHeight)-f.offsetTop; };
+    /* shrink the picture first (screens, mockup), then everything, so text stays readable */
+    const vis=[]; kids.forEach(k=>{ if(k.matches('.phones,.frames,.mock')) vis.push(k); k.querySelectorAll(':scope > .mock').forEach(m=>vis.push(m)); });
+    for(let i=0;i<4&&vis.length;i++){ const over=span()-(b.clientHeight-pad); if(over<=1) break;
+      vis.forEach(v=>{ const cur=parseFloat(v.style.zoom)||1, h=v.offsetHeight*cur; const f=Math.max(.5,cur*Math.max(.1,(h-over/vis.length)/h)); v.style.zoom=f.toFixed(3); }); }
+    for(let i=0;i<4;i++){ const need=span(), have=b.clientHeight-pad; if(need<=have+1) break;
+      kids.forEach(k=>{ if(vis.includes(k)) return; const cur=parseFloat(k.style.zoom)||1; k.style.zoom=Math.max(.7,cur*(have/need)*.99).toFixed(3); }); } });
+}
+let fitT; addEventListener('resize',()=>{clearTimeout(fitT); fitT=setTimeout(fitPanels,150)});
+addEventListener('load',fitPanels); document.fonts&&document.fonts.ready.then(fitPanels); setTimeout(fitPanels,600);
 $('#copyBtn').addEventListener('click',()=>{ const t=$('#mail').textContent;
   (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>$('#copyLbl').textContent='Copied',()=>{const r=document.createRange();r.selectNodeContents($('#mail'));const s=getSelection();s.removeAllRanges();s.addRange(r);$('#copyLbl').textContent='Selected';});
   setTimeout(()=>$('#copyLbl').textContent='Copy',1800); });
