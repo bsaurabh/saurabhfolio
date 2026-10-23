@@ -628,12 +628,14 @@ let last=performance.now();
    The case page's exit frame (clock + title on the board's white) is redrawn here, then it lifts
    while the 15:30 scene zooms out from inside the board: the reverse of the 09:15 zoom in. */
 let ARR=null;
-(()=>{ let flag=null; try{ flag=sessionStorage.getItem('arrive'); sessionStorage.removeItem('arrive'); }catch(_){}
-  const ov=document.getElementById('arrive'); if(flag!=='s1530'||location.hash!=='#s1530'||!ov) return;
-  if(reduce){ ov.remove(); return; }
+(()=>{ /* the signal rides in the URL (#s1530-in), so it works even where storage is blocked (the preview frame) */
+  const ov=document.getElementById('arrive'); if(location.hash!=='#s1530-in'||!ov) return;
+  try{ history.replaceState(null,'',location.pathname+location.search+'#s1530'); }catch(_){}
+  if(reduce){ ov.remove(); const a=document.getElementById('s1530'); a&&a.scrollIntoView(); return; }
   const o=scenes.find(s=>s.k==='s2'); if(!o) return;
-  const place=()=>{ const y=o.sc.offsetTop+.32*(o.sc.offsetHeight-innerHeight); if(lenis) lenis.scrollTo(y,{immediate:true,force:true}); else scrollTo(0,y); o.p=null; colState=null; };
-  ARR={z:1,t0:null,o,ov,place}; ov.hidden=false; $('.hud').style.opacity=0; place();
+  const Y=()=>o.sc.offsetTop+.32*(o.sc.offsetHeight-innerHeight);
+  const place=()=>{ const y=Y(); scrollTo(0,y); if(lenis){ lenis.resize&&lenis.resize(); lenis.scrollTo(y,{immediate:true,force:true}); } o.p=null; colState=null; };
+  ARR={z:1,t0:null,o,ov,place,Y}; ov.hidden=false; $('.hud').style.opacity=0; place();
   addEventListener('load',()=>{ if(ARR) place(); });
 })();
 /* one continuous pull-out, in log scale so the speed feels constant: first out of the phone screen, then off the board */
@@ -652,6 +654,7 @@ function camOut(o){ const cam=$('.cam',o.sc);
 function arrival(now){ if(!ARR) return;
   if(ARR.t0==null){ ARR.t0=now; ARR.place(); }
   const e=(now-ARR.t0)/1000, inn=ARR.ov.firstElementChild;
+  if(e<1.2 && Math.abs(scrollY-ARR.Y())>2) ARR.place();   // late layout (images, fonts) can move the target; hold it until the pull-out is under way
   const lift=cl((e-.2)/.45); op(inn,1-E.out(lift)); tf(inn,`translate3d(0,${r3(-48*E.inOut(lift))}px,0)`);
   const s=E.inOut(cl((e-.3)/2.2));
   ARR.tot=(1-s)*((ARR.k?Math.log(ARR.k):0)+(ARR.B?Math.log(ARR.B):0)); if(!ARR.k) ARR.tot=1e9;
