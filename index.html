@@ -23,22 +23,25 @@
   --t-h2:72px;    --l-h2:64px;      /* every section and slide headline */
   --t-h1:128px;   --l-h1:112px;     /* the homepage hook */
   --t-h1s:88px;   --l-h1s:80px;     /* case-study covers (they share a column with copy) */
-  --t-n2:96px;    --l-n2:80px;      /* numbers in lists */
-  --t-n1:128px;   --l-n1:112px;     /* the big stat */
+  --t-n2:64px;    --l-n2:64px;      /* numbers in lists */
+  --t-n1:128px;   --l-n1:128px;     /* the big stat */
   --t-clock:240px;--l-clock:192px;  /* the shutter clock */
+  /* every displayed number is set in the mono, condensed, tabular */
+  --f-num:"Martian Mono","Hanken Grotesk",ui-monospace,monospace;
   --gl:56px; --gr:56px;
 }
 @media (max-width:1180px){:root{
   --t-title:24px; --l-title:32px;
   --t-h2:56px; --l-h2:48px; --t-h1:88px; --l-h1:80px; --t-h1s:64px; --l-h1s:56px;
-  --t-n2:72px; --l-n2:64px; --t-n1:96px; --l-n1:88px; --t-clock:160px; --l-clock:128px;
+  --t-n2:48px; --l-n2:48px; --t-n1:96px; --l-n1:96px; --t-clock:160px; --l-clock:128px;
   --gl:32px; --gr:32px }}
 @media (min-width:721px) and (max-height:860px){:root{ --t-h2:56px; --l-h2:48px; --t-h1s:64px; --l-h1s:56px }}
 @media (max-width:720px){:root{
   --t-lead:16px; --l-lead:24px; --t-title:24px; --l-title:32px;
   --t-h2:40px; --l-h2:40px; --t-h1:56px; --l-h1:56px; --t-h1s:56px; --l-h1s:56px;
-  --t-n2:56px; --l-n2:48px; --t-n1:64px; --l-n1:56px; --t-clock:80px; --l-clock:64px;
+  --t-n2:40px; --l-n2:40px; --t-n1:64px; --l-n1:64px; --t-clock:80px; --l-clock:64px;
   --gl:16px; --gr:16px }}
+.num{font-family:var(--f-num);font-weight:500;font-stretch:75%;letter-spacing:-.04em;font-variant-numeric:tabular-nums lining-nums}
 
 :root{
   --f-clock:"Anybody",system-ui,sans-serif; --f-body:"Hanken Grotesk",system-ui,sans-serif; --f-mono:"Martian Mono",ui-monospace,monospace;
@@ -113,7 +116,7 @@ p{margin:0}
 .open-btn{transition:background .45s cubic-bezier(.22,1,.36,1),color .45s cubic-bezier(.22,1,.36,1)}
 .open-btn:hover{background:var(--pfg);color:var(--pbg)}
 .lead-in{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px 56px}
-.big{font:800 var(--t-n1)/var(--l-n1) var(--f-clock);font-stretch:58%;color:#4DE3A1;font-variant-numeric:tabular-nums}
+.big{font-size:var(--t-n1);line-height:var(--l-n1);font-family:var(--f-num);font-weight:500;font-stretch:75%;letter-spacing:-.04em;font-variant-numeric:tabular-nums lining-nums;color:#4DE3A1}
 .credits{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);max-width:900px}
 .credits>div{padding:16px 24px 16px 0;display:grid;gap:8px;align-content:start}
 .credits>div+div{padding-left:24px;border-left:1px solid var(--rule)}
@@ -242,7 +245,7 @@ button{font:inherit;color:inherit}
 .case .bar{position:sticky;top:0;background:#F3F5F1;display:flex;justify-content:space-between;align-items:center;padding-block:16px;gap:16px;z-index:2}
 .case .close{border:1.5px solid #0E1620;background:none;border-radius:999px;padding:8px 16px;cursor:pointer}
 .case h2{margin-top:32px}
-.ff{font:800 var(--t-clock)/var(--l-clock) var(--f-clock);font-stretch:50%;font-variant-numeric:tabular-nums;margin-top:24px;color:#0E1620}
+.ff{font-size:var(--t-clock);line-height:var(--l-clock);font-family:var(--f-num);font-weight:500;font-stretch:75%;letter-spacing:-.04em;font-variant-numeric:tabular-nums lining-nums;letter-spacing:-.06em;margin-top:24px;color:#0E1620}
 </style>
 </head>
 <body>
@@ -677,7 +680,7 @@ function openCase(e){
   if(reduce){ if(go) location.href=href; else $('#closeCase').focus(); return; }
   cs.animate([{transform:'translateY(100%)'},{transform:'translateY(0)'}],{duration:800,easing:'cubic-bezier(.75,0,.15,1)'});
   const from=nowMin(), t0=performance.now(), ff=$('#ff'), span=((to-from)%1440+1440)%1440;
-  (function spin(t){ const p=Math.min(1,(t-t0)/1100), e=1-Math.pow(1-p,4); ff.textContent=fmt((from+span*e)%1440); ff.style.fontStretch=(50+(1-e)*100)+'%';
+  (function spin(t){ const p=Math.min(1,(t-t0)/1100), e=1-Math.pow(1-p,4); ff.textContent=fmt((from+span*e)%1440); ff.style.fontStretch=(75+(1-e)*37.5)+'%';
     if(p<1) requestAnimationFrame(spin); else { ff.textContent=fmt(to); if(go) location.href=href; } })(t0);
   $('#closeCase').focus();
 }

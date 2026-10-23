@@ -17,22 +17,25 @@
   --t-h2:72px;    --l-h2:64px;      /* every section and slide headline */
   --t-h1:128px;   --l-h1:112px;     /* the homepage hook */
   --t-h1s:88px;   --l-h1s:80px;     /* case-study covers (they share a column with copy) */
-  --t-n2:96px;    --l-n2:80px;      /* numbers in lists */
-  --t-n1:128px;   --l-n1:112px;     /* the big stat */
+  --t-n2:64px;    --l-n2:64px;      /* numbers in lists */
+  --t-n1:128px;   --l-n1:128px;     /* the big stat */
   --t-clock:240px;--l-clock:192px;  /* the shutter clock */
+  /* every displayed number is set in the mono, condensed, tabular */
+  --f-num:"Martian Mono","Hanken Grotesk",ui-monospace,monospace;
   --gl:56px; --gr:56px;
 }
 @media (max-width:1180px){:root{
   --t-title:24px; --l-title:32px;
   --t-h2:56px; --l-h2:48px; --t-h1:88px; --l-h1:80px; --t-h1s:64px; --l-h1s:56px;
-  --t-n2:72px; --l-n2:64px; --t-n1:96px; --l-n1:88px; --t-clock:160px; --l-clock:128px;
+  --t-n2:48px; --l-n2:48px; --t-n1:96px; --l-n1:96px; --t-clock:160px; --l-clock:128px;
   --gl:32px; --gr:32px }}
 @media (min-width:721px) and (max-height:860px){:root{ --t-h2:56px; --l-h2:48px; --t-h1s:64px; --l-h1s:56px }}
 @media (max-width:720px){:root{
   --t-lead:16px; --l-lead:24px; --t-title:24px; --l-title:32px;
   --t-h2:40px; --l-h2:40px; --t-h1:56px; --l-h1:56px; --t-h1s:56px; --l-h1s:56px;
-  --t-n2:56px; --l-n2:48px; --t-n1:64px; --l-n1:56px; --t-clock:80px; --l-clock:64px;
+  --t-n2:40px; --l-n2:40px; --t-n1:64px; --l-n1:64px; --t-clock:80px; --l-clock:64px;
   --gl:16px; --gr:16px }}
+.num{font-family:var(--f-num);font-weight:500;font-stretch:75%;letter-spacing:-.04em;font-variant-numeric:tabular-nums lining-nums}
 
 /* Layout: a case study told like a presentation. One pinned stage; each scroll "beat" is a slide with one claim on the left
    and one piece of evidence on the right. A single phone persists across slides: screens cross-fade, it zooms into the detail
@@ -67,7 +70,7 @@ p{margin:0}
 .intro .in{max-width:1280px;margin:0 auto}
 .intro .ibar{display:flex;justify-content:space-between;align-items:center;padding-block:16px;gap:16px}
 .intro .ibtn{border:1.5px solid #0E1620;border-radius:999px;padding:8px 16px}
-.intro .iff{font:800 var(--t-clock)/var(--l-clock) var(--f-clock);font-stretch:50%;font-variant-numeric:tabular-nums;margin-top:24px}
+.intro .iff{font-size:var(--t-clock);line-height:var(--l-clock);font-family:var(--f-num);font-weight:500;font-stretch:75%;letter-spacing:-.04em;font-variant-numeric:tabular-nums lining-nums;letter-spacing:-.06em;margin-top:24px}
 .intro h2{font-stretch:70%;max-width:15ch;margin-top:32px}
 /* HUD */
 .hud{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);z-index:40;display:flex;align-items:center;gap:16px;padding:16px var(--cgr) 16px var(--cgl);background:var(--bg)}
@@ -133,7 +136,7 @@ p{margin:0}
 .alt.on .cards div:nth-child(2){transition-delay:.12s}.alt.on .cards div:nth-child(3){transition-delay:.24s}
 .cards b{font:760 var(--t-title)/var(--l-title) var(--f-clock);font-stretch:72%}
 .stat{width:min(100%,560px);height:min(100%,560px);background:var(--fg);color:var(--bg);display:grid;align-content:center;gap:16px;padding:56px;border-radius:8px}
-.stat .n{font:800 var(--t-clock)/var(--l-clock) var(--f-clock);font-stretch:54%;color:var(--hot);font-variant-numeric:tabular-nums}
+.stat .n{font-size:var(--t-n1);line-height:var(--l-n1);font-family:var(--f-num);font-weight:500;font-stretch:75%;letter-spacing:-.04em;font-variant-numeric:tabular-nums lining-nums;color:var(--hot)}
 .stat .mono{color:rgba(243,245,241,.62)}
 .pair{display:flex;gap:32px;align-items:center;height:100%}
 .pair .shell{position:relative;inset:auto;height:min(66vh,640px);aspect-ratio:.47/1}
@@ -143,8 +146,8 @@ p{margin:0}
 .desk{width:100%;max-width:720px;aspect-ratio:16/10;border-radius:8px;background:#05070A;padding:8px 8px 24px;box-shadow:0 60px 90px -50px rgba(14,22,32,.75)}
 .desk div{width:100%;height:100%;border-radius:4px;background:repeating-linear-gradient(135deg,#E6EAE2 0 12px,#DCE1D7 12px 24px);display:grid;place-items:center;text-align:center;padding:24px;color:var(--fg)}
 .outs{display:grid;gap:0;width:min(100%,560px);border-top:1px solid var(--fg)}
-.outs div{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 24px;align-items:end;padding-block:16px;border-bottom:1px solid var(--rule)}
-.outs .n{font:800 var(--t-n2)/var(--l-n2) var(--f-clock);font-stretch:58%;grid-row:span 2;font-variant-numeric:tabular-nums}
+.outs div{display:grid;grid-template-columns:256px minmax(0,1fr);gap:8px 24px;align-items:end;padding-block:16px;border-bottom:1px solid var(--rule)}
+.outs .n{font-size:var(--t-n2);line-height:var(--l-n2);font-family:var(--f-num);font-weight:500;font-stretch:75%;letter-spacing:-.04em;font-variant-numeric:tabular-nums lining-nums;grid-row:span 2}
 .flag{display:inline-flex;width:max-content;background:var(--flag-bg);color:var(--flag);border-radius:4px;padding:0 8px;font:600 var(--t-micro)/var(--l-body) var(--f-mono);text-transform:uppercase;letter-spacing:.04em}
 
 /* the two-ticks timeline */
@@ -152,7 +155,7 @@ p{margin:0}
 .tk-l{color:var(--dim);padding-block:8px}
 .tk-row{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:16px;align-items:baseline;padding-block:16px;border-bottom:1px solid var(--rule);opacity:0;transform:translateY(16px);transition:opacity .4s,transform .6s var(--ease)}
 .tk-row b{font:760 var(--t-title)/var(--l-title) var(--f-clock);font-stretch:72%}
-.tk-row em{font:800 var(--t-title)/var(--l-title) var(--f-clock);font-stretch:60%;font-style:normal;font-variant-numeric:tabular-nums}
+.tk-row em{font-size:var(--t-title);line-height:var(--l-title);font-family:var(--f-num);font-weight:500;font-stretch:75%;letter-spacing:-.04em;font-variant-numeric:tabular-nums lining-nums;font-style:normal}
 .tk-row em.up{color:var(--up)} .tk-row em.dn{color:var(--down)}
 .tk-row.gone b{color:var(--down)}
 .alt.on .tk-row{opacity:1;transform:none}
@@ -210,6 +213,7 @@ p{margin:0}
 :root{ --cgl:max(16px, env(safe-area-inset-left,0px)); --cgr:max(16px, env(safe-area-inset-right,0px)); --pl:112px }
 @media (max-width:1180px){:root{ --pl:64px }}
 @media (max-width:720px){ .lc .stat .n{font-size:var(--t-n1);line-height:var(--l-n1)} }
+@media (max-width:1180px){.outs div{grid-template-columns:200px minmax(0,1fr)}}
 </style>
 
 <div class="intro" id="intro" aria-hidden="true"><div class="in">
