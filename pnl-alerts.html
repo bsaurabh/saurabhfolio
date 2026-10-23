@@ -456,7 +456,7 @@ document.querySelectorAll('[data-next]').forEach(a=>a.addEventListener('click',e
 addEventListener('pageshow',e=>{ if(!e.persisted) return; const sh=$('#shut'); sh.getAnimations().forEach(a=>a.cancel()); sh.hidden=true; $('.outro').getAnimations().forEach(a=>a.cancel()); lenis&&lenis.start(); });
 
 /* back links return to where you were on the day */
-document.querySelectorAll('[data-back]').forEach(a=>a.addEventListener('click',e=>{ try{ if(document.referrer && new URL(document.referrer).origin===location.origin && history.length>1 && a.hasAttribute('data-return')){ e.preventDefault(); history.back(); } }catch(_){} }));
+document.querySelectorAll('[data-back]').forEach(a=>a.addEventListener('click',e=>{ try{ /* came straight from the homepage: go back to the exact spot. Came from the other case: go to this case's spot on the day. */ const R=document.referrer&&new URL(document.referrer); if(R && R.origin===location.origin && !/(strategy-builder|pnl-alerts)(\.html)?$/.test(R.pathname) && history.length>1 && a.hasAttribute('data-return')){ e.preventDefault(); history.back(); } }catch(_){} }));
 })();
 </script>
 

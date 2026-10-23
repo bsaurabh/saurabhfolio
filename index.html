@@ -661,9 +661,18 @@ function arrival(now){ if(!ARR) return;
   $('.hud').style.opacity=E.out(cl((e-2.1)/.5)).toFixed(3);
   if(e>2.7){ ARR.ov.remove(); $('.hud').style.opacity=''; const c=$('.cam',ARR.o.sc); c.style.transform=''; c._tf=''; ARR=null; }
 }
+/* ---------- landing, not replaying ----------
+   When the page is put somewhere without the reader scrolling there (Back to the day restoring the spot they left,
+   a deep link, a reload), scenes and colour jump straight to that state instead of scrubbing through everything
+   between. Anything the reader drives (wheel, touch, keys, a chip click) keeps the damped scrub. */
+let lastY=scrollY, lastInput=-1e9;
+['wheel','touchstart','touchmove','keydown','pointerdown'].forEach(ev=>addEventListener(ev,()=>{ lastInput=performance.now(); },{passive:true,capture:true}));
+function landing(now){ const y=scrollY, jump=Math.abs(y-lastY); lastY=y;
+  if(jump>innerHeight*.5 && now-lastInput>2500){ scenes.forEach(o=>o.p=null); colState=null; } }
 function tick(now){
   const dt=Math.min(.1,(now-last)/1000); last=now; const t=now/1000;
   if(lenis) lenis.raf(now);
+  landing(now);
   arrival(now);
   paint(dt);
   if(!reduce){
@@ -728,6 +737,8 @@ requestAnimationFrame(bFrame);
 const cs=$('#case'); let last=null;
 function openCase(e){
   last=e.currentTarget; const to=+last.dataset.to, href=last.dataset.href, go=!!href;
+  /* remember exactly where the reader was, so Back to the day returns them to this spot */
+  if(go){ try{ history.replaceState(Object.assign({},history.state,{y:Math.round(scrollY)}),''); }catch(_){} }
   $('#caseTitle').textContent=last.dataset.title;
   $('#caseNote').textContent=go?'':'This case study is next on the build list.';
   cs.hidden=false; cs.scrollTop=0; root.style.overflow='hidden'; window.__lenis&&window.__lenis.stop();
@@ -746,6 +757,18 @@ $('#closeCase').addEventListener('click',closeCase);
 addEventListener('keydown',e=>{ if(e.key==='Escape'&&!cs.hidden) closeCase(); });
 /* coming back from a case page restores the shutter state */
 addEventListener('pageshow',()=>{ cs.hidden=true; root.style.overflow=''; window.__lenis&&window.__lenis.start(); });
+/* Back to the day: put the reader back on the exact spot they left. Late layout (fonts, images, panel fitting)
+   can shift the page, so the spot is re-applied until things settle or the reader scrolls themselves. */
+(()=>{ let st=null; try{ st=history.state; }catch(_){}
+  const nav=(performance.getEntriesByType&&performance.getEntriesByType('navigation')[0])||{};
+  if(!st||st.y==null||nav.type!=='back_forward') return;
+  try{ history.scrollRestoration='manual'; }catch(_){}
+  const y=st.y, t0=performance.now(); let moved=false;
+  ['wheel','touchstart','keydown','pointerdown'].forEach(ev=>addEventListener(ev,()=>{moved=true;},{passive:true,capture:true,once:true}));
+  const put=()=>{ if(moved) return; if(Math.abs(scrollY-y)>1){ scrollTo(0,y); const l=window.__lenis; if(l){ l.resize&&l.resize(); l.scrollTo(y,{immediate:true,force:true}); } } };
+  put(); addEventListener('load',put); document.fonts&&document.fonts.ready.then(put);
+  (function hold(){ put(); if(!moved && performance.now()-t0<1500) requestAnimationFrame(hold); })();
+})();
 
 
 /* fit: if a work panel is taller than the screen (short phones, browser bars showing), shrink its contents to fit, never clip */
