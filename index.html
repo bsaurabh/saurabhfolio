@@ -68,7 +68,7 @@
 }
 *{box-sizing:border-box}
 html{background:var(--bg)}
-body{margin:0;background:var(--bg);color:var(--fg);font:400 var(--t-body)/var(--l-body) var(--f-body);overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 var(--t-body)/var(--l-body) var(--f-body);overflow-x:hidden;overflow-x:clip} /* clip, not hidden: hidden made body a scroller whenever html overflow was locked, which un-pinned every sticky scene under the shutter */
 html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!important}.lenis.lenis-stopped{overflow:hidden}
 .mono{font:400 var(--t-micro)/var(--l-micro) var(--f-mono);letter-spacing:.02em;text-transform:uppercase}
 h1,h2{font-family:var(--f-clock);font-weight:760;letter-spacing:-.025em;margin:0;text-wrap:balance}
@@ -82,7 +82,7 @@ p{margin:0}
 .hud{position:fixed;left:0;right:0;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px var(--gr) 16px var(--gl);background:var(--bg);color:var(--fg)}
 .hud b{font:700 var(--t-body)/var(--l-body) var(--f-body);letter-spacing:-.01em}
 .tl{display:flex;gap:0}
-.tl a{font:500 var(--t-micro)/var(--l-micro) var(--f-mono);text-decoration:none;color:var(--dim);padding:8px 16px;border-radius:999px;font-variant-numeric:tabular-nums;transition:background .5s cubic-bezier(.22,1,.36,1),color .5s cubic-bezier(.22,1,.36,1);white-space:nowrap}
+.tl a{font:500 var(--t-micro)/var(--l-micro) var(--f-mono);text-decoration:none;color:var(--dim);padding:8px 16px;border-radius:999px;font-variant-numeric:tabular-nums;transition:background .2s cubic-bezier(.22,1,.36,1),color .2s cubic-bezier(.22,1,.36,1);white-space:nowrap}
 .tl a span{margin-left:8px}
 .tl a.on{background:var(--fg);color:var(--bg)}
 @media (max-width:720px){.tl a span{display:none}}
@@ -132,7 +132,7 @@ p{margin:0}
 .ph img{display:block;width:100%;border-radius:16px}
 .ph:nth-child(even){margin-top:40px}
 .open-btn{display:inline-flex;align-items:center;gap:16px;border:1.5px solid currentColor;background:none;border-radius:999px;padding:8px 24px;cursor:pointer;width:max-content;color:inherit;font:600 var(--t-body)/var(--l-body) var(--f-body);text-decoration:none}
-.open-btn{transition:background .45s cubic-bezier(.22,1,.36,1),color .45s cubic-bezier(.22,1,.36,1)}
+.open-btn{transition:background .2s cubic-bezier(.22,1,.36,1),color .2s cubic-bezier(.22,1,.36,1)}
 .open-btn:hover{background:var(--pfg);color:var(--pbg)}
 .lead-in{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px 56px}
 .big{font-size:var(--t-n1);line-height:var(--l-n1);font-family:var(--f-num);font-weight:500;font-stretch:75%;letter-spacing:-.04em;font-variant-numeric:tabular-nums lining-nums;color:#4DE3A1}
@@ -214,7 +214,7 @@ button{font:inherit;color:inherit}
 .panel{padding-bottom:48px}
 .hud b{white-space:nowrap;flex:none}
 @media (max-width:1180px){.tl a span{display:none}}
-.hud .cv{flex:none;text-decoration:none;color:var(--fg);border:1px solid var(--rule);border-radius:999px;padding:8px 16px;transition:background .45s cubic-bezier(.22,1,.36,1),color .45s cubic-bezier(.22,1,.36,1)}
+.hud .cv{flex:none;text-decoration:none;color:var(--fg);border:1px solid var(--rule);border-radius:999px;padding:8px 16px;transition:background .2s cubic-bezier(.22,1,.36,1),color .2s cubic-bezier(.22,1,.36,1)}
 .hud .cv:hover{background:var(--fg);color:var(--bg)}
 .cvlink{display:inline-flex;gap:8px;align-items:center;width:max-content;color:var(--fg);text-decoration:none;font-weight:600;border-bottom:1px solid var(--rule);padding-bottom:8px}
 .cvlink:hover{border-color:var(--fg)}
@@ -481,7 +481,8 @@ button{font:inherit;color:inherit}
    3. Idle loops run on time, not scroll, and are faded in/out by scroll envelopes.
    4. Colour is interpolated continuously, never switched.                      */
 const M={ glide:1.4, tau:.32, tauColour:.45 };          // tuned against motion.zajno.com (Lenis 2s expo-out + scrub 1)
-const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const RMQ=matchMedia('(prefers-reduced-motion: reduce)'), reduce=RMQ.matches;
+RMQ.addEventListener&&RMQ.addEventListener('change',()=>location.reload()); /* the setting can change mid-visit */
 const root=document.documentElement;
 if(reduce) root.classList.add('rm');
 const cl=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
@@ -494,7 +495,9 @@ const E={
   expo:t=>t===1?1:1-Math.pow(2,-10*t),                       // expo out: big reveals
   back:t=>{const c=1.4;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2)}, // gentle overshoot: pops only
 };
-const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const QC=new WeakMap(), qc=r=>QC.get(r)||(QC.set(r,new Map()),QC.get(r));
+const $=(s,r=document)=>{ const m=qc(r), k='1'+s; if(!m.has(k)) m.set(k,r.querySelector(s)); return m.get(k) },
+      $$=(s,r=document)=>{ const m=qc(r), k='*'+s; if(!m.has(k)) m.set(k,[...r.querySelectorAll(s)]); return m.get(k) };
 const tf=(el,v)=>{ if(el && el._tf!==v){ el.style.transform=v; el._tf=v } };
 const op=(el,v)=>{ v=Math.round(v*1000)/1000; if(el && el._op!==v){ el.style.opacity=v; el._op=v } };
 const r3=v=>Math.round(v*100)/100;
@@ -525,16 +528,15 @@ function colourTarget(){
   const a=blocks[Math.max(0,i-1)], b=blocks[i]; const e=E.inOut(t);
   return {bg:mixc(a._bg,b._bg,e), fg:mixc(a._fg,b._fg,e), dark:lerp(a._dark,b._dark,e), cur:t>.5?b:a};
 }
-function paint(dt){
-  const T=colourTarget();
+let paintKey='', linkId='';
+function paint(dt,T=colourTarget()){
   if(!colState) colState={bg:T.bg,fg:T.fg,dark:T.dark};
   const k=reduce?1:1-Math.exp(-dt/M.tauColour);
   colState.bg=mixc(colState.bg,T.bg,k); colState.fg=mixc(colState.fg,T.fg,k); colState.dark=lerp(colState.dark,T.dark,k);
   const s=root.style, d=colState.dark;
-  s.setProperty('--bg',rgb(colState.bg)); s.setProperty('--fg',rgb(colState.fg));
-  s.setProperty('--dim',rgba(colState.fg,.7)); s.setProperty('--rule',rgba(colState.fg,.22));
-  s.setProperty('--ink',rgb(mixc(INK[0],INK[1],d))); s.setProperty('--paper',rgb(mixc(PAPER[0],PAPER[1],d))); s.setProperty('--top',rgb(mixc(TOP[0],TOP[1],d)));
-  const id=T.cur.id; links.forEach(a=>a.classList.toggle('on','#'+id===a.getAttribute('href')));
+  const v=[rgb(colState.bg),rgb(colState.fg),rgba(colState.fg,.7),rgba(colState.fg,.22),rgb(mixc(INK[0],INK[1],d)),rgb(mixc(PAPER[0],PAPER[1],d)),rgb(mixc(TOP[0],TOP[1],d))], key=v.join();
+  if(key!==paintKey){ paintKey=key; ['--bg','--fg','--dim','--rule','--ink','--paper','--top'].forEach((n,i)=>s.setProperty(n,v[i])); }
+  const id=T.cur.id; if(id!==linkId){ linkId=id; links.forEach(a=>a.classList.toggle('on','#'+id===a.getAttribute('href'))); }
 }
 
 /* ---------- camera: push into one object until it fills the stage ---------- */
@@ -564,7 +566,7 @@ const draw={
    const typing=seg(p,.04,.08)*(1-seg(p,.40,.46));                     // envelope from scroll…
    tf($('.me .bd',sc),`translate3d(0,${r3(Math.sin(t*9)*1.6*typing)}px,0)`); // …motion from time
    $$('.keys circle',sc).forEach((k,i)=>{const v=Math.max(0,Math.sin(t*6+i*2.1))*typing; tf(k,`translate3d(0,${r3(-v*14)}px,0)`); op(k,v)});
-   const st=$('.steam',sc); tf(st,`translate3d(${r3(Math.sin(t*.9)*4)}px,${r3(-((t*14)%40))}px,0)`); op(st,(.75-((t*14)%40)/60)*(1-seg(p,.3,.45)));
+   const st=$('.steam',sc), ph=(t*14)%40; tf(st,`translate3d(${r3(Math.sin(t*.9)*4)}px,${r3(-ph)}px,0)`); op(st,.75*Math.min(1,ph/8)*(1-ph/40)/.8*(1-seg(p,.3,.45)));
    caption(o,p,.38,.46);
    o.z.apply(E.inOut(seg(p,.42,.57)));
    panelIn(o,p,.52,.58);
@@ -629,9 +631,9 @@ const draw={
 /* ---------- the header takes the colour of whatever sits under it (page light, or a work panel) ---------- */
 const hudEl=$('.hud'); let hudKey='';
 scenes.forEach(o=>{ const st=o.panel&&o.panel.getAttribute('style')||''; const m=st.match(/--pbg:(#[0-9A-Fa-f]{6})/), n=st.match(/--pfg:(#[0-9A-Fa-f]{6})/); o.pbg=m?hex(m[1]):null; o.pfg=n?hex(n[1]):null; });
-function hudTint(){
-  const y=hudEl.offsetHeight*.5; let v=0, P=null;
-  for(const o of scenes){ if(!o.pbg) continue; const r=o.sc.querySelector('.stage').getBoundingClientRect();
+function hudTint(y){
+  let v=0, P=null;
+  for(const o of scenes){ if(!o.pbg) continue; const r=o.sr;
     if(r.top<=y && r.bottom>y){ v=reduce?0:(+o.panel.style.opacity||0); P=o; break; } }
   const s=hudEl.style;
   if(!P || v<.01){ if(hudKey){ ['--bg','--fg','--dim','--rule'].forEach(k=>s.removeProperty(k)); hudKey=''; } return; }
@@ -692,18 +694,22 @@ function tick(now){
   if(lenis) lenis.raf(now);
   landing(now);
   arrival(now);
-  paint(dt);
+  /* read phase: every measurement for this frame, before any style is written */
+  const T=colourTarget(), vh=innerHeight, hy=hudEl.offsetHeight*.5;
+  for(const o of scenes){ o.r=o.sc.getBoundingClientRect(); o.h=o.sc.offsetHeight; if(o.pbg) o.sr=$('.stage',o.sc).getBoundingClientRect(); }
+  /* write phase */
+  paint(dt,T);
   if(!reduce){
     const k=1-Math.exp(-dt/M.tau);
     for(const o of scenes){
-      const r=o.sc.getBoundingClientRect(); const near=r.bottom>-innerHeight*.5 && r.top<innerHeight*1.5;
-      const target=rawProgress(o.sc);
+      const r=o.r; const near=r.bottom>-vh*.5 && r.top<vh*1.5;
+      const target=cl(-r.top/(o.h-vh));
       o.p = o.p==null||!near ? target : o.p+(target-o.p)*k;   // damped scrub
       if(r.bottom<-40||r.top>innerHeight+40) continue;
       draw[o.k](o,o.p,t);
     }
   }
-  hudTint();
+  hudTint(hy);
   requestAnimationFrame(tick);
 }
 if(reduce){ for(const o of scenes){ draw[o.k](o,.40,0); $('.art',o.sc).style.transform='none'; op(o.cap,1); tf(o.cap,'none');
@@ -731,7 +737,9 @@ let bStart=0, bmx=-999, bmy=-999;
 function bLayout(){ const W=burst.clientWidth,H=burst.clientHeight; bis.forEach((el,i)=>{ el._w=el.offsetWidth; el._h=el.offsetHeight;
   el._x=Math.min(W-el._w/2, Math.max(el._w/2, +el.dataset.x*W)); el._y=Math.min(H-el._h/2, Math.max(el._h/2, +el.dataset.y*H)); el._r=+el.dataset.r; el._d=i*80; el._s=i*1.9; }); }
 const spr=t=>t<=0?0:1-Math.exp(-6*t)*Math.cos(9*t);
+let bVis=false, bRaf=0;
 function bFrame(now){
+  if(!bVis){ bRaf=0; return; }
   const W=burst.clientWidth,H=burst.clientHeight, cx=W/2, cy=H;
   bis.forEach(el=>{
     const b=reduce?1:(bStart?Math.min(1.15,spr((now-bStart-el._d)/900)):0);
@@ -741,18 +749,19 @@ function bFrame(now){
     el.style.opacity=b>0?1:0;
     el.style.transform=`translate3d(${x-el._w/2}px,${y-el._h/2}px,0) rotate(${el._r*Math.min(1,b)}deg) scale(${Math.max(.001,Math.min(1,b))})`;
   });
-  requestAnimationFrame(bFrame);
+  bRaf=requestAnimationFrame(bFrame);
 }
 bLayout(); addEventListener('resize',bLayout); document.fonts&&document.fonts.ready.then(bLayout);
 new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting && !bStart) bStart=performance.now(); }),{threshold:.35}).observe(burst);
 burst.addEventListener('pointermove',e=>{ const r=burst.getBoundingClientRect(); bmx=e.clientX-r.left; bmy=e.clientY-r.top; });
 burst.addEventListener('pointerleave',()=>{bmx=bmy=-999;});
-requestAnimationFrame(bFrame);
+new IntersectionObserver(es=>es.forEach(e=>{ bVis=e.isIntersecting; if(bVis&&!bRaf) bRaf=requestAnimationFrame(bFrame); }),{rootMargin:'40px'}).observe(burst);
 
 
 
 /* case: fast-forward the clock, shutter up */
-const cs=$('#case'); let last=null;
+const cs=$('#case'); let last=null, under=[];
+const unlift=(d)=>{ under.forEach(e=>{ e.getAnimations().forEach(a=>a.cancel()); if(d) e.animate([{transform:'translate3d(0,-96px,0)',opacity:.4},{transform:'none',opacity:1}],{duration:d,easing:'cubic-bezier(.22,1,.36,1)'}); }); under=[]; };
 function openCase(e){
   last=e.currentTarget; const to=+last.dataset.to, href=last.dataset.href, go=!!href;
   /* remember exactly where the reader was, so Back to the day returns them to this spot */
@@ -762,6 +771,8 @@ function openCase(e){
   cs.hidden=false; cs.scrollTop=0; root.style.overflow='hidden'; window.__lenis&&window.__lenis.stop();
   if(reduce){ if(go) location.href=href; else $('#closeCase').focus(); return; }
   cs.animate([{transform:'translateY(100%)'},{transform:'translateY(0)'}],{duration:800,easing:'cubic-bezier(.75,0,.15,1)'});
+  under=[...document.querySelector('main').children].map(e=>e.querySelector(':scope > .stage')||e).filter(e=>{ const r=e.getBoundingClientRect(); return r.bottom>0&&r.top<innerHeight; }); /* only what is on screen: a viewport-sized layer rasters at once */
+  under.forEach(e=>e.animate([{transform:'none',opacity:1},{transform:'translate3d(0,-96px,0)',opacity:.4}],{duration:800,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'}));
   const from=nowMin(), t0=performance.now(), ff=$('#ff'), span=((to-from)%1440+1440)%1440;
   (function spin(t){ const p=Math.min(1,(t-t0)/1100), e=1-Math.pow(1-p,4); ff.textContent=fmt((from+span*e)%1440); ff.style.fontStretch=(75+(1-e)*37.5)+'%';
     if(p<1) requestAnimationFrame(spin); else { ff.textContent=fmt(to); if(go) location.href=href; } })(t0);
@@ -769,12 +780,13 @@ function openCase(e){
 }
 function closeCase(){ const done=()=>{cs.hidden=true;root.style.overflow='';window.__lenis&&window.__lenis.start();last&&last.focus();};
   if(reduce) return done();
-  cs.animate([{transform:'translateY(0)'},{transform:'translateY(100%)'}],{duration:600,easing:'cubic-bezier(.7,0,.3,1)'}).onfinish=done; }
+  unlift(600);
+  cs.animate([{transform:'translateY(0)'},{transform:'translateY(100%)'}],{duration:600,easing:'cubic-bezier(.75,0,.15,1)'}).onfinish=done; }
 document.querySelectorAll('[data-case]').forEach(b=>b.addEventListener('click',openCase));
 $('#closeCase').addEventListener('click',closeCase);
 addEventListener('keydown',e=>{ if(e.key==='Escape'&&!cs.hidden) closeCase(); });
 /* coming back from a case page restores the shutter state */
-addEventListener('pageshow',()=>{ cs.hidden=true; root.style.overflow=''; window.__lenis&&window.__lenis.start(); });
+addEventListener('pageshow',()=>{ unlift(0); cs.hidden=true; root.style.overflow=''; window.__lenis&&window.__lenis.start(); });
 /* Back to the day: put the reader back on the exact spot they left. Late layout (fonts, images, panel fitting)
    can shift the page, so the spot is re-applied until things settle or the reader scrolls themselves. */
 (()=>{ let st=null; try{ st=history.state; }catch(_){}
