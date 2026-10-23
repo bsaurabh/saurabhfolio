@@ -66,7 +66,10 @@ p{margin:0}
 /* arrival: same frame the homepage shutter ends on, then it lifts */
 @view-transition{navigation:auto}
 ::view-transition-old(root),::view-transition-new(root){animation:none}
-.intro{position:fixed;inset:0;z-index:100;background:#F3F5F1;color:#0E1620;padding:env(safe-area-inset-top,0px) var(--gr) 88px var(--gl)}
+.intro{position:relative;z-index:50;height:100vh;height:100svh;overflow:hidden;background:#F3F5F1;color:#0E1620;padding:env(safe-area-inset-top,0px) var(--gr) 88px var(--gl);margin-inline:calc(-1*var(--cgl)) calc(-1*var(--cgr))}
+.intro .in{will-change:opacity,transform}
+.intro .ibtn{text-decoration:none;color:inherit}
+.hud{transition:none}
 .intro .in{max-width:1280px;margin:0 auto}
 .intro .ibar{display:flex;justify-content:space-between;align-items:center;padding-block:16px;gap:16px}
 .intro .ibtn{border:1.5px solid #0E1620;border-radius:999px;padding:8px 16px}
@@ -213,8 +216,8 @@ p{margin:0}
 @media (max-width:1180px){.outs div{grid-template-columns:200px minmax(0,1fr)}}
 </style>
 
-<div class="intro" id="intro" aria-hidden="true"><div class="in">
-  <div class="ibar"><span class="mono">Case study</span><span class="ibtn mono">Back to the day</span></div>
+<div class="intro" id="intro"><div class="in">
+  <div class="ibar"><span class="mono">Case study</span><a class="ibtn mono" href="./#s0915" data-back data-return>Back to the day</a></div>
   <div class="iff">09:15</div>
   <h2>Bringing strategy trading in-house.</h2>
 </div></div>
@@ -363,7 +366,9 @@ function go(i){
   });
 }
 /* which beat is in view */
-let ready=false;
+let ready=true;
+const deckOn=()=>getComputedStyle($('#deck')).display!=='none';
+const startY=()=> deckOn()? $('#deck').offsetTop : $('#linear').offsetTop;
 function onScroll(){
   if(!ready) return;
   const d=$('#deck'); if(getComputedStyle(d).display==='none') return;
@@ -378,27 +383,38 @@ scrollTo(0,0);
    Until the reader scrolls themselves, any scroll that arrives is put back to the top. */
 let userMoved=false; const t0=performance.now();
 ['wheel','touchstart','keydown','pointerdown'].forEach(ev=>addEventListener(ev,()=>{userMoved=true;},{passive:true,capture:true}));
-addEventListener('scroll',()=>{ if(!userMoved && performance.now()-t0<5000 && scrollY>0){ toTop(); if(ready){ cur=-1; go(0); } } },{passive:true});
-addEventListener('load',()=>{ if(!userMoved) toTop(); });
-const intro=$('#intro');
-function lift(){
-  if(!intro.isConnected) return;
-  if(reduce){ intro.remove(); if(!userMoved) toTop(); ready=true; cur=-1; go(0); return; }
-  intro.firstElementChild.animate([{opacity:1,transform:'none'},{opacity:0,transform:'translateY(-48px)'}],{duration:450,easing:'cubic-bezier(.65,0,.15,1)',fill:'forwards'});
-  const a=intro.animate([{clipPath:'inset(0 0 0 0)'},{clipPath:'inset(0 0 100% 0)'}],{duration:850,delay:180,easing:'cubic-bezier(.75,0,.15,1)',fill:'forwards'});
-  setTimeout(()=>{ if(!userMoved) toTop(); ready=true; cur=-1; go(0); },160);
-  a.onfinish=()=>intro.remove();
+/* the artifact viewer can push a stale scroll in after load: until the reader acts, hold the page where we put it */
+let hold=0;
+addEventListener('scroll',()=>{ if(!userMoved && performance.now()-t0<5000 && !gliding && Math.abs(scrollY-hold)>2){ if(lenis) lenis.scrollTo(hold,{immediate:true,force:true}); else scrollTo(0,hold); } },{passive:true});
+addEventListener('load',()=>{ if(!userMoved && !gliding && Math.abs(scrollY-hold)>2){ if(lenis) lenis.scrollTo(hold,{immediate:true,force:true}); else scrollTo(0,hold); } });
+/* the arrival frame (same frame the homepage shutter ends on) is the top of the page.
+   It glides away into slide 1 by itself; scroll up and it is there again. */
+const intro=$('#intro'), introIn=intro.firstElementChild, hud=$('.hud');
+let gliding=false;
+function glide(){
+  if(userMoved) return;
+  const y=startY(); cur=-1; go(0);
+  if(reduce){ hold=y; scrollTo(0,y); return; }
+  gliding=true;
+  if(lenis) lenis.scrollTo(y,{duration:1.2,easing:t=>t<.5?8*t*t*t*t:1-Math.pow(-2*t+2,4)/2,force:true,onComplete:()=>{gliding=false;hold=y;}});
+  else { scrollTo({top:y,behavior:'smooth'}); setTimeout(()=>{gliding=false;hold=y;},1300); }
 }
-Promise.race([ (document.fonts?document.fonts.ready:Promise.resolve()), new Promise(r=>setTimeout(r,700)) ]).then(()=>setTimeout(lift,120));
+Promise.race([ (document.fonts?document.fonts.ready:Promise.resolve()), new Promise(r=>setTimeout(r,700)) ]).then(()=>setTimeout(glide,420));
+/* scroll-linked, so it plays backwards when you scroll up: the frame lifts and fades, the HUD takes over */
+function coverFrame(){ const H=intro.offsetHeight||innerHeight, p=Math.max(0,Math.min(1,scrollY/H));
+  introIn.style.opacity=(1-Math.min(1,p*1.6)).toFixed(3); introIn.style.transform=`translate3d(0,${(-48*p).toFixed(1)}px,0)`;
+  const h=Math.max(0,Math.min(1,(p-.55)/.35)); hud.style.opacity=h.toFixed(3); hud.style.pointerEvents=h>.5?'':'none'; }
+coverFrame();
 
 /* the loop */
 const barEl=$('#bar'); let bp=0, last=performance.now(), still=0, snapped=true, lastY=scrollY;
-function tick(now){ const dt=Math.min(.1,(now-last)/1000); last=now; if(lenis) lenis.raf(now);
+function tick(now){ const dt=Math.min(.1,(now-last)/1000); last=now; if(lenis) lenis.raf(now); coverFrame();
   const d=$('#deck'); const on=getComputedStyle(d).display!=='none';
   if(on){ const raw=Math.max(0,Math.min(1,(scrollY-d.offsetTop+innerHeight*.5)/(N*innerHeight)));
     bp+= (raw-bp)*(reduce?1:1-Math.exp(-dt/.32)); barEl.style.transform=`scaleX(${bp.toFixed(4)})`;
     /* soft snap: once scrolling settles, glide to the nearest slide if we're close to it */
     if(Math.abs(scrollY-lastY)<.5){ still+=dt; } else { still=0; snapped=false; } lastY=scrollY;
+    if(ready && !snapped && still>.18 && userMoved && scrollY<d.offsetTop-2){ snapped=true; const tgt=scrollY<d.offsetTop/2?0:d.offsetTop; if(Math.abs(tgt-scrollY)>2) toY(tgt,{duration:.8}); }
     if(ready && !snapped && still>.18 && userMoved){ snapped=true; const y=scrollY-d.offsetTop; const i=Math.round(y/innerHeight); const tgt=d.offsetTop+i*innerHeight;
       if(i>=0&&i<N&&Math.abs(tgt-scrollY)>2&&Math.abs(tgt-scrollY)<innerHeight*.35) toY(tgt,{duration:.8}); }
   }
@@ -407,6 +423,8 @@ requestAnimationFrame(tick);
 
 /* keyboard: arrows move one slide */
 addEventListener('keydown',e=>{ if(getComputedStyle($('#deck')).display==='none') return;
+  if(['ArrowDown','ArrowRight','PageDown'].includes(e.key)&&scrollY<$('#deck').offsetTop-2){ e.preventDefault(); toY($('#deck').offsetTop); return; }
+  if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)&&cur===0&&scrollY>2){ e.preventDefault(); toY(0); return; }
   if(['ArrowDown','ArrowRight','PageDown'].includes(e.key)&&cur<N-1){ e.preventDefault(); S[cur+1].r.click(); }
   if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)&&cur>0){ e.preventDefault(); S[cur-1].r.click(); } });
 
