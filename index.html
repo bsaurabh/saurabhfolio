@@ -242,6 +242,7 @@ button{font:inherit;color:inherit}
 ::view-transition-old(root),::view-transition-new(root){animation:none}
 .case{position:fixed;inset:0;z-index:80;background:#F3F5F1;color:#0E1620;overflow-y:auto;overscroll-behavior:contain;padding:env(safe-area-inset-top,0px) var(--gr) 88px var(--gl)}
 .case-in{max-width:1280px;margin:0 auto}
+.case:focus{outline:none}
 .case .bar{position:sticky;top:0;background:#F3F5F1;display:flex;justify-content:space-between;align-items:center;padding-block:16px;gap:16px;z-index:2}
 .case .close{border:1.5px solid #0E1620;background:none;border-radius:999px;padding:8px 16px;cursor:pointer}
 .case h2{margin-top:32px}
@@ -682,7 +683,7 @@ function openCase(e){
   const from=nowMin(), t0=performance.now(), ff=$('#ff'), span=((to-from)%1440+1440)%1440;
   (function spin(t){ const p=Math.min(1,(t-t0)/1100), e=1-Math.pow(1-p,4); ff.textContent=fmt((from+span*e)%1440); ff.style.fontStretch=(75+(1-e)*37.5)+'%';
     if(p<1) requestAnimationFrame(spin); else { ff.textContent=fmt(to); if(go) location.href=href; } })(t0);
-  $('#closeCase').focus();
+  if(go){ cs.tabIndex=-1; cs.focus({preventScroll:true}); } else $('#closeCase').focus();
 }
 function closeCase(){ const done=()=>{cs.hidden=true;root.style.overflow='';window.__lenis&&window.__lenis.start();last&&last.focus();};
   if(reduce) return done();
