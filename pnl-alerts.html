@@ -68,6 +68,9 @@ p{margin:0}
 ::view-transition-old(root),::view-transition-new(root){animation:none}
 .intro{position:relative;z-index:50;height:100vh;height:100svh;overflow:hidden;background:#F3F5F1;color:#0E1620;padding:env(safe-area-inset-top,0px) var(--gr) 88px var(--gl);margin-inline:calc(-1*var(--cgl)) calc(-1*var(--cgr))}
 .intro .in{will-change:opacity,transform}
+.intro.shut{position:fixed;inset:0;height:auto;margin:0;z-index:120;transform:translateY(100%)}
+.intro.shut[hidden]{display:none}
+.intro.shut.board{background:#FFFFFF}
 .intro .ibtn{text-decoration:none;color:inherit}
 .hud{transition:none}
 .intro .in{max-width:1280px;margin:0 auto}
@@ -224,6 +227,11 @@ p{margin:0}
   <div class="iff">11:42</div>
   <h2>When a target lasts two ticks.</h2>
 </div></div>
+<div class="intro shut board" id="shut" hidden aria-hidden="true"><div class="in">
+  <div class="ibar"><span class="mono">Case study</span><span class="ibtn mono">Back to the day</span></div>
+  <div class="iff" id="sff">11:55</div>
+  <h2 id="sttl">Positions settle. Reviews start.</h2>
+</div></div>
 <header class="hud">
   <a class="mono" href="./#s1142" data-back data-return>← Back to the day</a>
   <span class="mono dim">P&amp;L Alerts</span>
@@ -251,7 +259,7 @@ p{margin:0}
 
 <section class="outro">
   <span class="mono dim">Next, at 15:30</span>
-  <a class="go" href="./#s1530" data-back><h2>Positions settle. Reviews start. →</h2><span class="dim">Orders, Positions and Holdings · my team's work</span></a>
+  <a class="go" href="./#s1530" data-next data-to="930" data-title="Positions settle. Reviews start." data-arrive="s1530"><h2>Positions settle. Reviews start. →</h2><span class="dim">Orders, Positions and Holdings · my team's work</span></a>
   <div class="foot mono dim"><a href="./#s1142" data-back data-return>← Back to the day</a><span>Screens: Upstox Android, from the shipped design files</span></div>
 </section>
 
@@ -427,6 +435,25 @@ addEventListener('keydown',e=>{ if(getComputedStyle($('#deck')).display==='none'
   if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)&&cur===0&&scrollY>2){ e.preventDefault(); toY(0); return; }
   if(['ArrowDown','ArrowRight','PageDown'].includes(e.key)&&cur<N-1){ e.preventDefault(); S[cur+1].r.click(); }
   if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)&&cur>0){ e.preventDefault(); S[cur-1].r.click(); } });
+
+/* next: the homepage shutter, carried over. Back to the day lands inside the review board, which then zooms out (homepage). It rises over the page, the clock runs on to the next case's time,
+   and the next page opens on this exact frame before gliding into its first slide. */
+document.querySelectorAll('[data-next]').forEach(a=>a.addEventListener('click',e=>{
+  if(e.metaKey||e.ctrlKey||e.shiftKey||e.button===1) return;
+  e.preventDefault(); if(a.dataset.arrive){ try{ sessionStorage.setItem('arrive',a.dataset.arrive); }catch(_){} }
+  const sh=$('#shut'), ff=$('#sff'), href=a.getAttribute('href'), to=+a.dataset.to;
+  $('#sttl').textContent=a.dataset.title;
+  const [h,m]=$('#clk').textContent.split(':'); const from=+h*60+ +m, span=((to-from)%1440+1440)%1440;
+  ff.textContent=fmt(from); sh.hidden=false; lenis&&lenis.stop();
+  if(reduce){ location.href=href; return; }
+  sh.animate([{transform:'translateY(100%)'},{transform:'translateY(0)'}],{duration:800,easing:'cubic-bezier(.75,0,.15,1)',fill:'forwards'});
+  const o=$('.outro'); o.animate([{transform:'none',opacity:1},{transform:'translate3d(0,-96px,0)',opacity:.4}],{duration:800,easing:'cubic-bezier(.75,0,.15,1)',fill:'forwards'});
+  const t0=performance.now();
+  (function spin(t){ const p=Math.min(1,(t-t0)/1100), q=1-Math.pow(1-p,4); ff.textContent=fmt(Math.round(from+span*q)%1440); ff.style.fontStretch=(75+(1-q)*37.5)+'%';
+    if(p<1) requestAnimationFrame(spin); else { ff.textContent=fmt(to); location.href=href; } })(t0);
+}));
+/* coming back with the browser's back button: put the page back as it was */
+addEventListener('pageshow',e=>{ if(!e.persisted) return; const sh=$('#shut'); sh.getAnimations().forEach(a=>a.cancel()); sh.hidden=true; $('.outro').getAnimations().forEach(a=>a.cancel()); lenis&&lenis.start(); });
 
 /* back links return to where you were on the day */
 document.querySelectorAll('[data-back]').forEach(a=>a.addEventListener('click',e=>{ try{ if(document.referrer && new URL(document.referrer).origin===location.origin && history.length>1 && a.hasAttribute('data-return')){ e.preventDefault(); history.back(); } }catch(_){} }));
