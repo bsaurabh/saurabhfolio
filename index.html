@@ -4,7 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Saurabh Bajaj · Design Manager</title>
-<meta name="description" content="Saurabh Bajaj, Design Manager at Upstox. Product design and design leadership for trading products.">
+<meta name="description" content="Saurabh Bajaj, Design Manager at Upstox. Product design and design leadership for trading products: case studies, how I lead, and what I build after hours.">
+<link rel="canonical" href="https://saurabhbajaj.design/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#DCE3EA">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Saurabh Bajaj">
+<meta property="og:title" content="Saurabh Bajaj · Design Manager">
+<meta property="og:description" content="Saurabh Bajaj, Design Manager at Upstox. Product design and design leadership for trading products: case studies, how I lead, and what I build after hours.">
+<meta property="og:url" content="https://saurabhbajaj.design/">
+<meta property="og:image" content="https://saurabhbajaj.design/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="My days run on market hours. Saurabh Bajaj, Design Manager at Upstox.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Saurabh Bajaj · Design Manager">
+<meta name="twitter:description" content="Saurabh Bajaj, Design Manager at Upstox. Product design and design leadership for trading products: case studies, how I lead, and what I build after hours.">
+<meta name="twitter:image" content="https://saurabhbajaj.design/og.png">
 <link rel="prefetch" href="strategy-builder.html">
 <link rel="prefetch" href="pnl-alerts.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,7 +63,7 @@
 
 :root{
   --f-clock:"Anybody",system-ui,sans-serif; --f-body:"Hanken Grotesk",system-ui,sans-serif; --f-mono:"Martian Mono",ui-monospace,monospace;
-  --bg:#DCE3EA; --fg:#0E1620; --dim:rgba(14,22,32,.62); --rule:rgba(14,22,32,.22);
+  --bg:#DCE3EA; --fg:#0E1620; --dim:rgba(14,22,32,.7); --rule:rgba(14,22,32,.22);
   --ink:#0E1620; --paper:#FFFFFF; --top:#3A3F47;
 }
 *{box-sizing:border-box}
@@ -104,7 +122,7 @@ p{margin:0}
 .keys circle{fill:#4DE3A1;opacity:0}
 
 /* the work behind each object */
-.panel{position:absolute;inset:0;z-index:4;opacity:0;pointer-events:none;display:grid;align-content:center;gap:32px;padding:88px var(--gr) 48px var(--gl);background:var(--pbg);color:var(--pfg);--dim:color-mix(in srgb,var(--pfg) 62%,transparent);--rule:color-mix(in srgb,var(--pfg) 22%,transparent)}
+.panel{position:absolute;inset:0;z-index:4;opacity:0;pointer-events:none;display:grid;align-content:center;gap:32px;padding:88px var(--gr) 48px var(--gl);background:var(--pbg);color:var(--pfg);--dim:color-mix(in srgb,var(--pfg) 70%,transparent);--rule:color-mix(in srgb,var(--pfg) 22%,transparent)}
 .panel.live{pointer-events:auto}
 .panel,.panel .sub{grid-template-columns:minmax(0,1fr)}
 .panel .head{display:grid;gap:16px}
@@ -211,7 +229,7 @@ button{font:inherit;color:inherit}
 .mock .chrome{height:24px;display:flex;align-items:center;gap:8px;padding:0 8px;background:#F3F3F5;border-bottom:1px solid rgba(0,0,0,.06)}
 .mock .chrome i{width:8px;height:8px;border-radius:50%;background:#FF5F57;flex:none}
 .mock .chrome i+i{background:#FEBC2E}.mock .chrome i+i+i{background:#28C840}
-.mock .chrome span{flex:1;text-align:center;font:500 var(--t-micro)/var(--l-micro) var(--f-mono);color:#7A7A85;letter-spacing:0;text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:40px}
+.mock .chrome span{flex:1;text-align:center;font:500 var(--t-micro)/var(--l-micro) var(--f-mono);color:#62626C;letter-spacing:0;text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:40px}
 .mock .wi img{display:block;width:100%}
 .mock .front{left:5%;top:15%;width:80%;z-index:2}
 .mock .front .wi{transform:rotateY(-10deg) rotateX(5deg);transform-origin:20% 50%}
@@ -453,7 +471,7 @@ button{font:inherit;color:inherit}
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="/js/lenis.min.js"></script>
 <script>
 (()=>{
 /* ================= motion engine =================
@@ -514,7 +532,7 @@ function paint(dt){
   colState.bg=mixc(colState.bg,T.bg,k); colState.fg=mixc(colState.fg,T.fg,k); colState.dark=lerp(colState.dark,T.dark,k);
   const s=root.style, d=colState.dark;
   s.setProperty('--bg',rgb(colState.bg)); s.setProperty('--fg',rgb(colState.fg));
-  s.setProperty('--dim',rgba(colState.fg,.62)); s.setProperty('--rule',rgba(colState.fg,.22));
+  s.setProperty('--dim',rgba(colState.fg,.7)); s.setProperty('--rule',rgba(colState.fg,.22));
   s.setProperty('--ink',rgb(mixc(INK[0],INK[1],d))); s.setProperty('--paper',rgb(mixc(PAPER[0],PAPER[1],d))); s.setProperty('--top',rgb(mixc(TOP[0],TOP[1],d)));
   const id=T.cur.id; links.forEach(a=>a.classList.toggle('on','#'+id===a.getAttribute('href')));
 }
@@ -532,7 +550,7 @@ const scenes=$$('.scene').map(sc=>({sc,k:[...sc.classList].find(c=>/^s\d$/.test(
 let resizeT; addEventListener('resize',()=>{clearTimeout(resizeT); resizeT=setTimeout(()=>{ scenes.forEach(o=>o.z&&o.z.measure()); if(ARR) ARR.k=null; },120)});
 const rawProgress=sc=>{const r=sc.getBoundingClientRect(); return cl(-r.top/(sc.offsetHeight-innerHeight))};
 
-function panelIn(o,p,a,b){ const v=E.out(seg(p,a,b)); op(o.panel,v); o.panel.classList.toggle('live',v>.9); return v }
+function panelIn(o,p,a,b){ const v=E.out(seg(p,a,b)); op(o.panel,v); const live=v>.9; if(o.panel._live!==live){ o.panel._live=live; o.panel.classList.toggle('live',live); o.panel.inert=!live; } return v }  /* a hidden panel can't take keyboard focus */
 function caption(o,p,a,b){ const v=seg(p,a,b); op(o.cap,1-E.out(v)); tf(o.cap,`translate3d(0,${r3(-24*E.inOut(v))}px,0)`) }
 function rise(els,p,a,step,len,dist=32){ els.forEach((e,i)=>{ const v=E.out(seg(p,a+i*step,a+i*step+len)); tf(e,`translate3d(0,${r3((1-v)*dist)}px,0)`); op(e,v) }) }
 
@@ -619,7 +637,7 @@ function hudTint(){
   if(!P || v<.01){ if(hudKey){ ['--bg','--fg','--dim','--rule'].forEach(k=>s.removeProperty(k)); hudKey=''; } return; }
   const bg=mixc(colState.bg,P.pbg,v), fg=mixc(colState.fg,P.pfg,v), key=bg.map(Math.round).join()+fg.map(Math.round).join();
   if(key===hudKey) return; hudKey=key;
-  s.setProperty('--bg',rgb(bg)); s.setProperty('--fg',rgb(fg)); s.setProperty('--dim',rgba(fg,.62)); s.setProperty('--rule',rgba(fg,.22));
+  s.setProperty('--bg',rgb(bg)); s.setProperty('--fg',rgb(fg)); s.setProperty('--dim',rgba(fg,.7)); s.setProperty('--rule',rgba(fg,.22));
 }
 
 /* ---------- the loop ---------- */

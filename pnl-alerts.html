@@ -1,6 +1,25 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>P&amp;L Alerts Case Study</title>
+<title>When a target lasts two ticks · Saurabh Bajaj</title>
+<meta name="description" content="Case study: Upstox P&amp;L Alerts with auto-exit. Designing a default that closes real positions, for Android and iOS.">
+<link rel="canonical" href="https://saurabhbajaj.design/pnl-alerts">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#DCE3EA">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Saurabh Bajaj">
+<meta property="og:title" content="When a target lasts two ticks · Saurabh Bajaj">
+<meta property="og:description" content="Case study: Upstox P&amp;L Alerts with auto-exit. Designing a default that closes real positions, for Android and iOS.">
+<meta property="og:url" content="https://saurabhbajaj.design/pnl-alerts">
+<meta property="og:image" content="https://saurabhbajaj.design/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="My days run on market hours. Saurabh Bajaj, Design Manager at Upstox.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="When a target lasts two ticks · Saurabh Bajaj">
+<meta name="twitter:description" content="Case study: Upstox P&amp;L Alerts with auto-exit. Designing a default that closes real positions, for Android and iOS.">
+<meta name="twitter:image" content="https://saurabhbajaj.design/og.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,100..900&family=Hanken+Grotesk:ital,wght@0,300..800;1,300..800&family=Martian+Mono:wdth,wght@75..112,300..600&display=swap">
@@ -175,6 +194,7 @@ p{margin:0}
 .rail button:hover span,.rail button:focus-visible span{opacity:1;transform:none}
 .rail button.on i{width:32px;background:var(--fg)}
 .rail button.on span{color:var(--fg)}
+.rail button:focus-visible{outline:2px solid var(--fg);outline-offset:4px;border-radius:2px}
 
 /* outro */
 .outro{position:relative;z-index:2;background:var(--bg);max-width:1240px;margin:0 auto;padding-block:128px calc(56px + env(safe-area-inset-bottom,0px));display:grid;gap:16px;scroll-snap-align:start}
@@ -263,7 +283,7 @@ p{margin:0}
   <div class="foot mono dim"><a href="./#s1142" data-back data-return>← Back to the day</a><span>Screens: Upstox Android, from the shipped design files</span></div>
 </section>
 
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="/js/lenis.min.js"></script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s);
@@ -411,7 +431,7 @@ Promise.race([ (document.fonts?document.fonts.ready:Promise.resolve()), new Prom
 /* scroll-linked, so it plays backwards when you scroll up: the frame lifts and fades, the HUD takes over */
 function coverFrame(){ const H=intro.offsetHeight||innerHeight, p=Math.max(0,Math.min(1,scrollY/H));
   introIn.style.opacity=(1-Math.min(1,p*1.6)).toFixed(3); introIn.style.transform=`translate3d(0,${(-48*p).toFixed(1)}px,0)`;
-  const h=Math.max(0,Math.min(1,(p-.55)/.35)); hud.style.opacity=h.toFixed(3); hud.style.pointerEvents=h>.5?'':'none'; }
+  const h=Math.max(0,Math.min(1,(p-.55)/.35)); hud.style.opacity=h.toFixed(3); hud.style.pointerEvents=h>.5?'':'none'; const hi=h<=.5; if(hud.inert!==hi) hud.inert=hi; intro.inert=p>.5; }
 coverFrame();
 
 /* the loop */
