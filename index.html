@@ -64,7 +64,7 @@
 
 :root{
   --f-clock:"Anybody",system-ui,sans-serif; --f-body:"Hanken Grotesk",system-ui,sans-serif; --f-mono:"Martian Mono",ui-monospace,monospace;
-  --bg:#DCE3EA; --fg:#0E1620; --dim:rgba(14,22,32,.7); --rule:rgba(14,22,32,.22);
+  --bg:#DCE3EA; --fg:#0E1620; --dim:rgba(14,22,32,.7); --rule:rgba(14,22,32,.12);
   --ink:#0E1620; --paper:#FFFFFF; --top:#3A3F47;
 }
 *{box-sizing:border-box}
@@ -123,17 +123,21 @@ p{margin:0}
 .keys circle{fill:#4DE3A1;opacity:0}
 
 /* the work behind each object */
-.panel{position:absolute;inset:0;z-index:4;opacity:0;pointer-events:none;display:grid;align-content:center;gap:32px;padding:88px var(--gr) 48px var(--gl);background:var(--pbg);color:var(--pfg);--dim:color-mix(in srgb,var(--pfg) 70%,transparent);--rule:color-mix(in srgb,var(--pfg) 22%,transparent)}
+.panel{position:absolute;inset:0;z-index:4;opacity:0;pointer-events:none;display:grid;align-content:center;gap:32px;padding:88px var(--gr) 48px var(--gl);background:var(--pbg);color:var(--pfg);--dim:color-mix(in srgb,var(--pfg) 70%,transparent);--rule:color-mix(in srgb,var(--pfg) 12%,transparent)}
 .panel.live{pointer-events:auto}
 .panel,.panel .sub{grid-template-columns:minmax(0,1fr)}
 .panel .head{display:grid;gap:16px}
 .panel .sub{position:absolute;inset:0;display:grid;align-content:center;gap:32px;padding:inherit}
 .phones{display:flex;gap:16px;will-change:transform}
-.ph{flex:0 0 auto;width:clamp(120px,13vw,200px);background:#000;border-radius:24px;padding:8px;box-shadow:0 32px 64px -32px rgba(0,0,0,.6)}
+.ph{flex:0 0 auto;width:clamp(120px,13vw,200px);background:#000;border-radius:24px;padding:8px;box-shadow:0 24px 48px -24px rgba(14,22,32,.30),0 8px 16px -8px rgba(14,22,32,.16)}
 .ph img{display:block;width:100%;border-radius:16px}
 .ph:nth-child(even){margin-top:40px}
-.open-btn{display:inline-flex;align-items:center;gap:16px;border:1.5px solid currentColor;background:none;border-radius:999px;padding:8px 24px;cursor:pointer;width:max-content;color:inherit;font:600 var(--t-body)/var(--l-body) var(--f-body);text-decoration:none}
-.open-btn{transition:background .2s cubic-bezier(.22,1,.36,1),color .2s cubic-bezier(.22,1,.36,1)}
+.open-btn{display:inline-flex;align-items:center;gap:16px;border:1.5px solid currentColor;background:none;border-radius:999px;padding:8px 8px 8px 24px;cursor:pointer;width:max-content;color:inherit;font:600 var(--t-body)/var(--l-body) var(--f-body);text-decoration:none}
+.open-btn{transition:background .2s cubic-bezier(.22,1,.36,1),color .2s cubic-bezier(.22,1,.36,1),transform .2s cubic-bezier(.22,1,.36,1)}
+.open-btn>span{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,currentColor 12%,transparent);transition:transform .35s cubic-bezier(.22,1,.36,1)}
+.open-btn:hover>span{transform:translateX(4px)}
+.open-btn:active{transform:scale(.98)}
+@media (prefers-reduced-motion:reduce){.open-btn>span,.open-btn{transition:none}.open-btn:hover>span{transform:none}}
 .open-btn:hover{background:var(--pfg);color:var(--pbg)}
 .lead-in{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px 56px}
 .big{font-size:var(--t-n1);line-height:var(--l-n1);font-family:var(--f-num);font-weight:500;font-stretch:75%;letter-spacing:-.04em;font-variant-numeric:tabular-nums lining-nums;color:#4DE3A1}
@@ -166,7 +170,7 @@ p{margin:0}
   .credits{grid-template-columns:1fr}.credits>div+div{padding-left:0;border-left:0;border-top:1px solid var(--rule)}
   .frames div{width:96px}
   .off{grid-template-columns:1fr}.off>div:nth-child(odd){border-right:0}.off>div:nth-child(even){padding-left:0}
-  .lead-in .open-btn{width:100%;justify-content:center}
+  .lead-in .open-btn{width:100%;justify-content:center;padding:8px}
   .s4 .two .oc{display:none}
 }
 /* reduced motion: no pinning, no scrubbing. Each scene shows its finished drawing, then its work. */
@@ -201,7 +205,7 @@ button{font:inherit;color:inherit}
 .bi.pin{background:#2A3CF5;color:#fff;border-radius:16px 16px 16px 4px;padding:16px;width:240px;font-size:var(--t-body);line-height:var(--l-body)}
 .bi small{display:block;font:var(--t-micro)/var(--l-micro) var(--f-mono)}
 .bi.pin small{opacity:.7;margin-bottom:8px}
-.bi.file{background:#FBFBFD;color:#16141F;border-radius:8px;padding:8px 16px;display:flex;gap:8px;align-items:center;font-size:var(--t-body);line-height:var(--l-body);box-shadow:0 16px 24px -16px rgba(0,0,0,.6)}
+.bi.file{background:#FBFBFD;color:#16141F;border-radius:8px;padding:8px 16px;display:flex;gap:8px;align-items:center;font-size:var(--t-body);line-height:var(--l-body);box-shadow:0 16px 32px -16px rgba(0,0,0,.28)}
 .bi.file i{width:24px;height:32px;border-radius:4px;background:linear-gradient(135deg,#2A3CF5,#8C95FF)}
 .bi.file small{color:#56536A}
 .bi.sticky{background:#FFD53D;color:#16141F;width:176px;padding:16px;font:600 var(--t-body)/var(--l-body) var(--f-body)}
@@ -228,7 +232,7 @@ button{font:inherit;color:inherit}
 /* Sidekick: tilted browser windows + callouts */
 .mock-stage{position:relative;aspect-ratio:5/4;perspective:1800px;isolation:isolate}
 .mock .win,.mock .callout{position:absolute;will-change:transform}
-.mock .wi{border-radius:8px;overflow:hidden;background:#fff;transform-style:preserve-3d;box-shadow:0 0 0 1px rgba(14,22,32,.06),0 64px 96px -48px rgba(14,22,32,.35),0 24px 40px -24px rgba(14,22,32,.28)}
+.mock .wi{border-radius:8px;overflow:hidden;background:#fff;transform-style:preserve-3d;box-shadow:0 0 0 1px rgba(14,22,32,.06),0 48px 96px -48px rgba(14,22,32,.24),0 16px 32px -16px rgba(14,22,32,.14)}
 .mock .chrome{height:24px;display:flex;align-items:center;gap:8px;padding:0 8px;background:#F3F3F5;border-bottom:1px solid rgba(0,0,0,.06)}
 .mock .chrome i{width:8px;height:8px;border-radius:50%;background:#FF5F57;flex:none}
 .mock .chrome i+i{background:#FEBC2E}.mock .chrome i+i+i{background:#28C840}
@@ -239,7 +243,7 @@ button{font:inherit;color:inherit}
 .mock .back{right:4%;top:5%;width:56%;z-index:1}
 .mock .back .wi{transform:rotateY(-10deg) rotateX(5deg) scale(.96);transform-origin:80% 50%;filter:saturate(.9)}
 .mock .callout{z-index:3}
-.mock .ci{background:#fff;border-radius:8px;padding:8px;display:grid;gap:8px;box-shadow:0 32px 64px -32px rgba(14,22,32,.4),0 0 0 1px rgba(0,0,0,.05)}
+.mock .ci{background:#fff;border-radius:8px;padding:8px;display:grid;gap:8px;box-shadow:0 24px 48px -24px rgba(14,22,32,.24),0 0 0 1px rgba(14,22,32,.05)}
 .mock .ci span{color:#6B7280}
 .mock .ci img{display:block;width:100%;border-radius:8px}
 .mock .c1{left:-6%;bottom:9%;width:60%}.mock .c1 .ci{transform:rotate(-2.5deg)}
@@ -538,7 +542,7 @@ function paint(dt,T=colourTarget()){
   const k=reduce?1:1-Math.exp(-dt/M.tauColour);
   colState.bg=mixc(colState.bg,T.bg,k); colState.fg=mixc(colState.fg,T.fg,k); colState.dark=lerp(colState.dark,T.dark,k);
   const s=root.style, d=colState.dark;
-  const v=[rgb(colState.bg),rgb(colState.fg),rgba(colState.fg,.7),rgba(colState.fg,.22),rgb(mixc(INK[0],INK[1],d)),rgb(mixc(PAPER[0],PAPER[1],d)),rgb(mixc(TOP[0],TOP[1],d))], key=v.join();
+  const v=[rgb(colState.bg),rgb(colState.fg),rgba(colState.fg,.7),rgba(colState.fg,.12),rgb(mixc(INK[0],INK[1],d)),rgb(mixc(PAPER[0],PAPER[1],d)),rgb(mixc(TOP[0],TOP[1],d))], key=v.join();
   if(key!==paintKey){ paintKey=key; ['--bg','--fg','--dim','--rule','--ink','--paper','--top'].forEach((n,i)=>s.setProperty(n,v[i])); }
   const id=T.cur.id; if(id!==linkId){ linkId=id; links.forEach(a=>a.classList.toggle('on','#'+id===a.getAttribute('href'))); }
 }
@@ -652,7 +656,7 @@ function hudTint(y){
   if(!P || v<.01){ if(hudKey){ ['--bg','--fg','--dim','--rule'].forEach(k=>s.removeProperty(k)); hudKey=''; } return; }
   const bg=mixc(colState.bg,P.pbg,v), fg=mixc(colState.fg,P.pfg,v), key=bg.map(Math.round).join()+fg.map(Math.round).join();
   if(key===hudKey) return; hudKey=key;
-  s.setProperty('--bg',rgb(bg)); s.setProperty('--fg',rgb(fg)); s.setProperty('--dim',rgba(fg,.7)); s.setProperty('--rule',rgba(fg,.22));
+  s.setProperty('--bg',rgb(bg)); s.setProperty('--fg',rgb(fg)); s.setProperty('--dim',rgba(fg,.7)); s.setProperty('--rule',rgba(fg,.12));
 }
 
 /* ---------- the loop ---------- */
