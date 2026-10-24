@@ -73,6 +73,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font:400 var(--t-body)/var(--
 html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!important}.lenis.lenis-stopped{overflow:hidden}
 .mono{font:400 var(--t-micro)/var(--l-micro) var(--f-mono);letter-spacing:.02em;text-transform:uppercase}
 h1,h2{font-family:var(--f-clock);font-weight:760;letter-spacing:0;margin:0;text-wrap:balance}
+p{text-wrap:pretty}
 h1{font-size:var(--t-h1);line-height:var(--l-h1);font-stretch:62%;max-width:15ch}
 h2{font-size:var(--t-h2);line-height:var(--l-h2);font-stretch:70%;max-width:16.5ch}
 p{margin:0}
@@ -560,7 +561,7 @@ const scenes=$$('.scene').map(sc=>({sc,k:[...sc.classList].find(c=>/^s\d$/.test(
 let resizeT; addEventListener('resize',()=>{clearTimeout(resizeT); resizeT=setTimeout(()=>{ scenes.forEach(o=>o.z&&o.z.measure()); if(ARR) ARR.k=null; },120)});
 const rawProgress=sc=>{const r=sc.getBoundingClientRect(); return cl(-r.top/(sc.offsetHeight-innerHeight))};
 
-function panelIn(o,p,a,b){ const v=E.out(seg(p,a,b)); op(o.panel,v); const live=v>.9; if(o.panel._live!==live){ o.panel._live=live; o.panel.classList.toggle('live',live); o.panel.inert=!live; } return v }  /* a hidden panel can't take keyboard focus */
+function panelIn(o,p,a,b){ const v=E.out(seg(p,a,b)); op(o.panel,v); const live=v>.9; if(o.panel._live!==live){ o.panel._live=live; o.panel.classList.toggle('live',live); o.panel.inert=!live&&!document.documentElement.classList.contains('rm'); } return v }  /* a hidden panel can't take keyboard focus */
 function caption(o,p,a,b){ const v=seg(p,a,b); op(o.cap,1-E.out(v)); tf(o.cap,`translate3d(0,${r3(-24*E.inOut(v))}px,0)`) }
 function rise(els,p,a,step,len,dist=32){ els.forEach((e,i)=>{ const v=E.out(seg(p,a+i*step,a+i*step+len)); tf(e,`translate3d(0,${r3((1-v)*dist)}px,0)`); op(e,v) }) }
 

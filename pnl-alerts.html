@@ -79,6 +79,8 @@ a{color:inherit} button{font:inherit;color:inherit}
 .mono{font:400 var(--t-micro)/var(--l-micro) var(--f-mono);letter-spacing:.02em;text-transform:uppercase}
 .dim{color:var(--dim)}
 h1,h2{font-family:var(--f-clock);font-weight:760;letter-spacing:0;margin:0;text-wrap:balance}
+p{text-wrap:pretty}
+a[data-back]{position:relative}a[data-back]::after{content:"";position:absolute;inset:-14px -8px}  /* 44px tap area, no visual change */
 h1{font-size:var(--t-h1);line-height:var(--l-h1)} h2{font-size:var(--t-h2);line-height:var(--l-h2)}
 p{margin:0}
 
