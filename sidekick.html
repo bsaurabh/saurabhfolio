@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>I built the tool I wanted as a manager · Saurabh Bajaj</title>
+<meta name="description" content="Case study: Sidekick, a personal project. An AI coaching assistant for design managers that I specified, designed and directed the build of with Claude Code.">
+<link rel="canonical" href="https://saurabhbajaj.design/sidekick">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#DCE3EA">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Saurabh Bajaj">
+<meta property="og:title" content="I built the tool I wanted as a manager · Saurabh Bajaj">
+<meta property="og:description" content="Case study: Sidekick, a personal project. An AI coaching assistant for design managers that I specified, designed and directed the build of with Claude Code.">
+<meta property="og:url" content="https://saurabhbajaj.design/sidekick">
+<meta property="og:image" content="https://saurabhbajaj.design/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="My days run on market hours. Saurabh Bajaj, Design Manager at Upstox.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="I built the tool I wanted as a manager · Saurabh Bajaj">
+<meta name="twitter:description" content="Case study: Sidekick, a personal project. An AI coaching assistant for design managers that I specified, designed and directed the build of with Claude Code.">
+<meta name="twitter:image" content="https://saurabhbajaj.design/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,100..900&family=Hanken+Grotesk:ital,wght@0,300..800;1,300..800&family=Martian+Mono:wdth,wght@75..112,300..600&display=swap">
+<style>
+/* ===== Type + spacing system (shared by every page) =====
+   Every size, line-height, padding, margin and gap sits on an 8px grid.
+   One exception: micro labels (mono caps) are 12px on a 16px line.
+   Three breakpoints: phone ≤720, tablet ≤1180, desktop. Sizes step, they never scale fluidly. */
+:root{
+  --t-micro:12px; --l-micro:16px;   /* mono labels, chips, captions */
+  --t-body:16px;  --l-body:24px;    /* running text, buttons, nav */
+  --t-lead:24px;  --l-lead:32px;    /* section copy, card headings */
+  --t-title:32px; --l-title:40px;   /* rules, email, stat labels */
+  --t-h2:72px;    --l-h2:64px;      /* every section and slide headline */
+  --t-h1:128px;   --l-h1:112px;     /* the homepage hook */
+  --t-h1s:88px;   --l-h1s:80px;     /* case-study covers (they share a column with copy) */
+  --t-n2:64px;    --l-n2:64px;      /* numbers in lists */
+  --t-n1:128px;   --l-n1:128px;     /* the big stat */
+  --t-clock:240px;--l-clock:192px;  /* the shutter clock */
+  /* every displayed number is set in the mono, condensed, tabular */
+  --f-num:"Martian Mono","Hanken Grotesk",ui-monospace,monospace;
+  --gl:56px; --gr:56px;
+}
+@media (max-width:1180px){:root{
+  --t-title:24px; --l-title:32px;
+  --t-h2:56px; --l-h2:48px; --t-h1:88px; --l-h1:80px; --t-h1s:64px; --l-h1s:56px;
+  --t-n2:48px; --l-n2:48px; --t-n1:96px; --l-n1:96px; --t-clock:160px; --l-clock:128px;
+  --gl:32px; --gr:32px }}
+@media (min-width:721px) and (max-height:860px){:root{ --t-h2:56px; --l-h2:48px; --t-h1s:64px; --l-h1s:56px }}
+@media (max-width:720px){:root{
+  --t-lead:16px; --l-lead:24px; --t-title:24px; --l-title:32px;
+  --t-h2:40px; --l-h2:40px; --t-h1:56px; --l-h1:56px; --t-h1s:56px; --l-h1s:56px;
+  --t-n2:40px; --l-n2:40px; --t-n1:64px; --l-n1:64px; --t-clock:80px; --l-clock:64px;
+  --gl:16px; --gr:16px }}
+.num{font-family:var(--f-num);font-weight:500;font-stretch:75%;letter-spacing:-.04em;font-variant-numeric:tabular-nums lining-nums}
+
+/* Layout: a case study told like a presentation. One pinned stage; each scroll "beat" is a slide with one claim on the left
+   and one piece of evidence on the right. A single phone persists across slides: screens cross-fade, it zooms into the detail
+   being discussed and draws callouts. Morning palette and type from the homepage, unchanged. Single-theme by design. */
+:root{
+  color-scheme:light;
+  --bg:#F3F5F1; --fg:#0E1620; --dim:rgba(14,22,32,.62); --rule:rgba(14,22,32,.18); --panel:#E6EAE2;
+  --up:#0F8A5F; --down:#D2452B; --flag:#9A5B00; --flag-bg:#FFEFD0; --hot:#FF7A5C;
+  --f-clock:"Anybody", "Arial Narrow", sans-serif;
+  --f-body:"Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --f-mono:"Martian Mono", ui-monospace, Menlo, monospace;
+  
+  --ease:cubic-bezier(.22,1,.36,1); --cam:cubic-bezier(.76,0,.24,1);
+}
+*{box-sizing:border-box}
+html{overflow-x:clip}
+html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!important}.lenis.lenis-stopped{overflow:hidden}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 var(--t-body)/var(--l-body) var(--f-body);padding-left:var(--cgl);padding-right:var(--cgr)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:60}
+a{color:inherit} button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--fg);outline-offset:4px}
+.mono{font:400 var(--t-micro)/var(--l-micro) var(--f-mono);letter-spacing:.02em;text-transform:uppercase}
+.dim{color:var(--dim)}
+h1,h2{font-family:var(--f-clock);font-weight:760;letter-spacing:0;margin:0;text-wrap:balance}
+h1{font-size:var(--t-h1);line-height:var(--l-h1)} h2{font-size:var(--t-h2);line-height:var(--l-h2)}
+p{margin:0}
+
+/* arrival: same frame the homepage shutter ends on, then it lifts */
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation:none}
+.intro{position:relative;z-index:50;height:100vh;height:100svh;overflow:hidden;background:#F3F5F1;color:#0E1620;padding:env(safe-area-inset-top,0px) var(--gr) 88px var(--gl);margin-inline:calc(-1*var(--cgl)) calc(-1*var(--cgr))}
+.intro .in{will-change:opacity,transform}
+.intro.shut{position:fixed;inset:0;height:auto;margin:0;z-index:120;transform:translateY(100%)}
+.intro.shut[hidden]{display:none}
+.intro .ibtn{text-decoration:none;color:inherit}
+.hud{transition:none}
+.intro .in{max-width:1280px;margin:0 auto}
+.intro .ibar{display:flex;justify-content:space-between;align-items:center;padding-block:16px;gap:16px}
+.intro .ibtn{border:1.5px solid #0E1620;border-radius:999px;padding:8px 16px}
+.intro .iff{font-size:var(--t-clock);line-height:var(--l-clock);font-family:var(--f-num);font-weight:500;font-stretch:75%;letter-spacing:-.04em;font-variant-numeric:tabular-nums lining-nums;letter-spacing:-.06em;margin-top:24px}
+.intro h2{font-stretch:70%;max-width:16.5ch;margin-top:32px}
+/* HUD */
+.hud{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);z-index:40;display:flex;align-items:center;gap:16px;padding:16px var(--cgr) 16px var(--cgl);background:var(--bg)}
+.hud a{text-decoration:none}
+.hud .t{margin-left:auto;display:flex;gap:16px;align-items:center;font:600 var(--t-micro)/var(--l-micro) var(--f-mono);font-variant-numeric:tabular-nums}
+.hud .bar{position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--rule)}
+.hud .bar b{position:absolute;left:0;top:0;bottom:0;background:var(--fg);width:100%;transform-origin:left;transform:scaleX(0);will-change:transform}
+
+/* ---------- deck (desktop) ---------- */
+.deck{position:relative;margin-inline:calc(-1*var(--cgl)) calc(-1*var(--cgr))}
+#beats{position:absolute;inset:0;pointer-events:none}
+.beat{height:100vh;scroll-snap-align:start}
+.pin{position:sticky;top:0;height:100vh;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);padding:calc(72px + env(safe-area-inset-top,0px)) calc(var(--cgr) + 72px) 40px var(--pl);gap:64px;z-index:1}
+.copy{position:relative;align-self:stretch;min-height:0}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:24px;opacity:0;transform:translateY(40px);transition:opacity .22s ease-in,transform .3s ease-in;pointer-events:none}
+.slide.on{opacity:1;transform:none;pointer-events:auto;transition:opacity .5s var(--ease) .26s,transform .8s var(--ease) .26s}
+.slide.out{opacity:0;transform:translateY(-24px)}
+.slide .k{display:flex;gap:16px;align-items:baseline;border-top:1px solid var(--rule);padding-top:16px}
+.slide .k b{font:700 var(--t-body)/var(--l-body) var(--f-mono)}
+.slide h1{font-size:var(--t-h1s);line-height:var(--l-h1s);font-stretch:62%}
+.slide h2{font-stretch:66%}
+.slide p{max-width:44ch;font-size:var(--t-lead);line-height:var(--l-lead);color:var(--dim)}
+.slide p strong{color:var(--fg);font-weight:600}
+.tag{display:inline-flex;width:max-content;gap:8px;align-items:center;border-radius:999px;padding:0 8px;font:600 var(--t-micro)/var(--l-body) var(--f-mono);text-transform:uppercase;letter-spacing:.03em}
+.tag.no{background:color-mix(in srgb,var(--down) 14%,transparent);color:#A3311C}
+.tag.yes{background:color-mix(in srgb,var(--up) 14%,transparent);color:#0B6B49}
+.meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px;border-top:1px solid var(--fg);padding-top:16px;max-width:560px}
+.meta div{display:grid;gap:0}
+.meta span:last-child{color:var(--fg)}
+
+/* stage */
+.stage{position:relative;align-self:stretch}
+.device{position:absolute;left:50%;top:50%;height:min(80vh,780px);aspect-ratio:.47/1;transform:translate(-50%,-50%);transition:transform 1s var(--cam),opacity .45s var(--ease) .25s}
+.device.away{opacity:0;transform:translate(-50%,-50%) translateX(18%) scale(.92);transition:transform .5s ease-in,opacity .22s ease-in}
+.device.tilt{transform:translate(-50%,-50%) rotate(4deg)}
+.shell{position:absolute;inset:0;background:#05070A;border-radius:40px;padding:8px;box-shadow:0 60px 90px -50px rgba(14,22,32,.75),0 0 0 1px rgba(14,22,32,.2)}
+.screen{position:relative;width:100%;height:100%;border-radius:34px;overflow:hidden;background:#fff}
+.zoom{position:absolute;inset:0;transition:transform 1.1s var(--cam);will-change:transform}
+.zoom img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center;opacity:0;transition:opacity .2s ease-in}
+.zoom img.show{opacity:1;transition:opacity .45s var(--ease) .2s}
+.sheet{position:absolute;left:0;right:0;bottom:0;width:100%;transform:translateY(105%);transition:transform .9s var(--cam);box-shadow:0 -20px 40px -20px rgba(0,0,0,.4);border-radius:18px 18px 0 0}
+.sheet.up{transform:none}
+.scrim{position:absolute;inset:0;background:rgba(5,7,10,.45);opacity:0;transition:opacity .7s var(--ease)}
+.scrim.on{opacity:1}
+.label{position:absolute;left:50%;top:-48px;transform:translateX(-50%);opacity:0;transition:opacity .4s var(--ease)}
+.label.on{opacity:0}
+/* callouts */
+.calls{position:absolute;inset:8px;pointer-events:none}
+.call{position:absolute;width:0;height:0;opacity:0;transition:opacity .45s var(--ease)}
+.call.on{opacity:1}
+.call i{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:var(--hot);box-shadow:0 0 0 6px color-mix(in srgb,var(--hot) 30%,transparent)}
+.call em{position:absolute;top:0;height:1px;background:var(--fg);transform-origin:left;transform:scaleX(0);transition:transform .6s var(--ease) .15s}
+.call.on em{transform:scaleX(1)}
+.call.l em{transform-origin:right}
+.call span{position:absolute;top:-12px;width:max-content;max-width:168px;font:600 var(--t-micro)/var(--l-micro) var(--f-body);background:var(--fg);color:var(--bg);padding:8px;border-radius:8px;opacity:0;transform:translateY(6px);transition:opacity .4s var(--ease) .45s,transform .5s var(--ease) .45s}
+.call.on span{opacity:1;transform:none}
+/* non-phone visuals */
+.alt{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transform:translateY(30px) scale(.98);transition:opacity .2s ease-in,transform .3s ease-in;pointer-events:none}
+.alt.on{opacity:1;transform:none;transition:opacity .55s var(--ease) .3s,transform .9s var(--ease) .3s}
+.cards{display:grid;gap:16px;width:min(100%,520px)}
+.cards div{background:var(--panel);border-radius:8px;padding:24px;display:grid;gap:8px;transform:translateX(40px);opacity:0;transition:transform .8s var(--ease),opacity .5s var(--ease)}
+.alt.on .cards div{transform:none;opacity:1}
+.alt.on .cards div:nth-child(2){transition-delay:.12s}.alt.on .cards div:nth-child(3){transition-delay:.24s}
+.cards b{font:760 var(--t-title)/var(--l-title) var(--f-clock);font-stretch:72%}
+.stat{width:min(100%,560px);height:min(100%,560px);background:var(--fg);color:var(--bg);display:grid;align-content:center;gap:16px;padding:56px;border-radius:8px}
+.stat .n{font-size:var(--t-n1);line-height:var(--l-n1);font-family:var(--f-num);font-weight:500;font-stretch:75%;letter-spacing:-.04em;font-variant-numeric:tabular-nums lining-nums;color:var(--hot)}
+.stat .mono{color:rgba(243,245,241,.62)}
+.pair{display:flex;gap:32px;align-items:center;height:100%}
+.pair .shell{position:relative;inset:auto;height:min(66vh,640px);aspect-ratio:.47/1}
+.pair .shell img{width:100%;height:100%;object-fit:cover;object-position:top;border-radius:34px;display:block}
+.pair figure{margin:0;display:grid;gap:16px;justify-items:center}
+.pair figure:nth-child(2){transform:translateY(40px)}
+.desk2{position:relative;width:100%;max-width:784px;padding:0 48px 96px 0}
+@media (max-width:1180px){.desk2{padding:0 24px 64px 0}}
+@media (max-width:720px){.desk2{padding:0 16px 48px 0}}
+.desk2 .dw{margin:0;border-radius:8px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px rgba(14,22,32,.1),0 50px 90px -50px rgba(14,22,32,.6)}
+.desk2 .dw img{display:block;width:100%}
+.desk2 .dw.sm{position:absolute;right:0;bottom:0;width:44%}
+.lc .desk2{max-width:100%}
+.desk2.web{max-width:640px}
+.desk2.web .dw.sm{width:52%;padding:8px;background:#fff}
+.desk2.web .dw.sm img{border-radius:4px}
+.desk2.web .chrome{height:24px;display:flex;align-items:center;gap:8px;padding:0 8px;background:#F3F3F5;border-bottom:1px solid rgba(14,22,32,.08)}
+.desk2.web .chrome i{width:8px;height:8px;border-radius:50%;background:#FF5F57;flex:none}
+.desk2.web .chrome i+i{background:#FEBC2E}.desk2.web .chrome i+i+i{background:#28C840}
+.desk2.web .chrome span{flex:1;text-align:center;font:500 var(--t-micro)/var(--l-micro) var(--f-mono);color:#62626C;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:40px}
+.stat.quote{gap:24px}
+.stat.quote .q{font-family:var(--f-clock);font-weight:760;font-stretch:66%;font-size:var(--t-h2);line-height:var(--l-h2);color:var(--hot);text-wrap:balance}
+.slide p a,.lc p a{color:var(--fg);font-weight:600}
+.desk{width:100%;max-width:720px;aspect-ratio:16/10;border-radius:8px;background:#05070A;padding:8px 8px 24px;box-shadow:0 60px 90px -50px rgba(14,22,32,.75)}
+.desk div{width:100%;height:100%;border-radius:4px;background:repeating-linear-gradient(135deg,#E6EAE2 0 12px,#DCE1D7 12px 24px);display:grid;place-items:center;text-align:center;padding:24px;color:var(--fg)}
+.outs{display:grid;gap:0;width:min(100%,560px);border-top:1px solid var(--fg)}
+.outs div{display:grid;grid-template-columns:256px minmax(0,1fr);gap:8px 24px;align-items:end;padding-block:16px;border-bottom:1px solid var(--rule)}
+.outs .n{font-size:var(--t-n2);line-height:var(--l-n2);font-family:var(--f-num);font-weight:500;font-stretch:75%;letter-spacing:-.04em;font-variant-numeric:tabular-nums lining-nums;grid-row:span 2}
+.flag{display:inline-flex;width:max-content;background:var(--flag-bg);color:var(--flag);border-radius:4px;padding:0 8px;font:600 var(--t-micro)/var(--l-body) var(--f-mono);text-transform:uppercase;letter-spacing:.04em}
+
+/* rail */
+.rail{position:absolute;right:var(--cgr);top:50%;transform:translateY(-50%);display:grid;gap:8px;z-index:5}
+.rail button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:flex-end;gap:8px;height:16px}
+.rail button i{width:32px;height:2px;background:var(--rule);transform:scaleX(.5);transform-origin:right;transition:transform .4s var(--ease),background .3s var(--ease)}
+.rail button span{font:500 var(--t-micro)/var(--l-micro) var(--f-mono);text-transform:uppercase;opacity:0;transform:translateX(6px);transition:opacity .2s var(--ease),transform .2s var(--ease);white-space:nowrap;color:var(--dim)}
+.rail button:hover span,.rail button:focus-visible span{opacity:1;transform:none}
+.rail button.on i{transform:none;background:var(--fg)}
+.rail button.on span{color:var(--fg)}
+.rail button:focus-visible{outline:2px solid var(--fg);outline-offset:4px;border-radius:2px}
+
+/* outro */
+.outro{position:relative;z-index:2;background:var(--bg);max-width:1240px;margin:0 auto;padding-block:128px calc(56px + env(safe-area-inset-bottom,0px));display:grid;gap:16px;scroll-snap-align:start}
+.outro a.go{text-decoration:none;display:grid;gap:8px;border-top:1px solid var(--fg);padding-top:24px}
+.outro a.go h2{font-stretch:66%;transition:transform .32s var(--ease)}
+.outro a.go:hover h2{transform:translateX(16px)}
+.outro .foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
+
+/* ---------- linear (phones, reduced motion) ---------- */
+.linear{display:none}
+@media (max-width:900px), (max-height:560px){
+  html{scroll-snap-type:none}
+  .hud .mono.dim{display:none}
+  .deck{display:none}
+  .linear{display:grid;grid-template-columns:minmax(0,1fr);gap:0;padding-top:calc(64px + env(safe-area-inset-top,0px))}
+  .lc{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;padding-block:48px;border-top:1px solid var(--rule)}
+  .lc:first-child{border-top:0}
+  .lc h1{font-stretch:62%}
+  .lc h2{font-stretch:66%}
+  .lc p{color:var(--dim)}
+  .lc .k{display:flex;gap:16px;align-items:baseline}
+  .lc .k b{font:700 var(--t-body)/var(--l-body) var(--f-mono)}
+  .lphone{width:min(72vw,280px);background:#05070A;border-radius:32px;padding:8px}
+  .lphone img{display:block;width:100%;border-radius:24px}
+  .lnotes{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+  .lnotes li{display:flex;gap:8px;align-items:baseline;font-weight:600}
+  .lnotes li::before{content:"";flex:0 0 8px;height:8px;border-radius:50%;background:var(--hot);transform:translateY(-2px)}
+  .lpair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .lpair img{width:100%;border-radius:16px;border:8px solid #05070A}
+  .lc .desk{max-width:100%}
+  .lc .alt{position:static;opacity:1;transform:none;display:block}
+  .lc .stat{width:auto;height:auto;padding:24px}
+  .lc .outs div{grid-template-columns:minmax(0,1fr)}
+  .lc .outs .n{grid-row:auto}
+  .lc .cards div{opacity:1;transform:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01s!important;transition-delay:0s!important}
+}
+
+/* case-page gutters on the same grid */
+:root{ --cgl:max(16px, env(safe-area-inset-left,0px)); --cgr:max(16px, env(safe-area-inset-right,0px)); --pl:112px }
+@media (max-width:1180px){:root{ --pl:64px }}
+@media (max-width:720px){ .lc .stat .n{font-size:var(--t-n1);line-height:var(--l-n1)} }
+.outs div:not(:has(.flag)){align-items:center}@media (max-width:900px),(max-height:560px){.lc .outs div:not(:has(.flag)){grid-template-columns:minmax(0,1fr)}}.outs div:not(:has(.flag)) .n{grid-row:auto}
+@media (max-width:1180px){.outs div{grid-template-columns:200px minmax(0,1fr)}}
+</style>
+
+<div class="intro" id="intro"><div class="in">
+  <div class="ibar"><span class="mono">Case study</span><a class="ibtn mono" href="./#sc3" data-back data-return>Back to the day</a></div>
+  <div class="iff">17:00</div>
+  <h2>I built the tool I wanted as a manager.</h2>
+</div></div>
+<div class="intro shut" id="shut" hidden aria-hidden="true"><div class="in">
+  <div class="ibar"><span class="mono">Case study</span><span class="ibtn mono">Back to the day</span></div>
+  <div class="iff" id="sff">09:31</div>
+  <h2 id="sttl">When a target lasts two ticks.</h2>
+</div></div>
+<header class="hud">
+  <a class="mono" href="./#sc3" data-back data-return>← Back to the day</a>
+  <span class="mono dim">Sidekick</span>
+  <span class="t"><span class="dim" id="count">01 / 17</span><span id="clk">17:00</span></span>
+  <span class="bar"><b id="bar"></b></span>
+</header>
+
+<section class="deck" id="deck" aria-label="Case study, told in slides">
+  <div class="pin">
+    <div class="copy" id="copy"></div>
+    <div class="stage" id="stage" aria-hidden="true">
+      <div class="device" id="device">
+        <span class="label" id="label"></span>
+        <div class="shell"><div class="screen"><div class="zoom" id="zoom"></div><div class="scrim" id="scrim"></div><img class="sheet" id="sheet" src="img/sb-adjust.jpg" alt=""></div></div>
+        <div class="calls" id="calls"></div>
+      </div>
+      <div id="alts"></div>
+    </div>
+    <nav class="rail" id="rail" aria-label="Slides"></nav>
+  </div>
+  <div id="beats"></div>
+</section>
+
+<main class="linear" id="linear" aria-label="Case study"></main>
+
+<section class="outro">
+  <span class="mono dim">Next, at 18:30</span>
+  <a class="go" href="./#s1830"><h2>Three rules I keep, every day →</h2><span class="dim">How I lead</span></a>
+  <div class="foot mono dim"><a href="./#sc3" data-back data-return>← Back to the day</a><span>Demo account, invented team. No real 1:1s on this site.</span></div>
+</section>
+
+<script src="/js/lenis.min.js"></script>
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+const RMQ=matchMedia('(prefers-reduced-motion: reduce)'), reduce=RMQ.matches;
+RMQ.addEventListener&&RMQ.addEventListener('change',()=>location.reload());
+/* motion-principles §1: page glide (wheel only) + damped progress, one rAF loop */
+const lenis=(!reduce&&window.Lenis)?new Lenis({duration:1.4,easing:t=>Math.min(1,1.001-Math.pow(2,-10*t)),smoothWheel:true,syncTouch:false}):null;
+const toY=(y,o)=>{ if(lenis) lenis.scrollTo(y,Object.assign({duration:1.2,easing:t=>t<.5?8*t*t*t*t:1-Math.pow(-2*t+2,4)/2},o||{})); else scrollTo({top:y,behavior:reduce?'auto':'smooth'}); };
+const toTop=()=>{ if(lenis) lenis.scrollTo(0,{immediate:true,force:true}); else scrollTo(0,0); };
+const NEEDS='Needs your publish approval';
+/* each slide: one claim (copy) + one piece of evidence (v) */
+const S=[
+ {k:'Case study',h1:'I built the tool I wanted as a manager.',p:"I didn't need another place to dump 1:1 notes. I needed something that made me a better manager in the room. <strong>So I wrote the spec, directed the build with Claude Code, and had it working in four days.</strong>",meta:1,
+  v:{type:'web',img:'oo-brief-c',url:'…/teammates/alex/brief',alt:'Sidekick pre-meeting brief for a demo teammate',inset:'oo-signal',ialt:'A pattern signal marked Watch'}},
+ {k:'The problem',h:'My 1:1 notes knew nothing.',p:'I run regular 1:1s with six designers. The notes lived in Google Sheets. They never surfaced anything, and they were useless five minutes before a meeting. Follow-ups slipped between sessions, and coaching turned reactive: something went wrong, then we talked.',
+  v:{type:'cards',items:[['Passive','The notes never told me anything I hadn’t typed.'],['Isolated','Each 1:1 stood alone, so patterns across weeks stayed invisible.'],['Lost','Last week’s follow-ups disappeared between sessions.']]}},
+ {k:'The bar',h:'Not a notes app. A coach that knows my team.',p:'The brief I wrote set one test: does it make the next conversation better? Remember each person, notice what keeps coming back, prepare me, and push me where I’d rather not go.',
+  v:{type:'cards',items:[['Remember','A profile for every teammate, and every 1:1 kept.'],['Notice','Patterns across the whole history, with the evidence.'],['Prepare','A brief before every 1:1.'],['Push','One question I might be avoiding.']]}},
+ {k:'How I built it',h:'Spec first, code second.',p:'I used a structured AI development lifecycle with Claude Code: requirements, user stories, design, then code, with my approval at every gate. Every answer and approval is logged, 105 entries so far. Five units went from requirements to a working app between 1 and 4 March 2026.',
+  v:{type:'stat',n:'4 days',cap:'from requirements to a working app · 1–4 March 2026'}},
+ {k:'My calls',h:'Claude asked. I decided.',p:'The build ran on questions: Claude proposed, I answered, approved or cut. A few of the answers that shaped the product, in my words from the log:',
+  v:{type:'cards',items:[['Forgot password','“I think there is a need to accommodate forgot password user story.”'],['Commitments from voice','“Commitments should also be extracted from transcription/voice input.”'],['Speed over ceremony','“Skip unnecessary steps in order to reduce time to execution.”'],['Data, walled off','Each manager’s data isolated at the database, not just in the app.']]}},
+ {k:'Onboarding',h:'Every teammate starts with an interview.',p:'The AI interviews me about each person and turns my answers into a profile: strengths, growth areas, aspirations, current work, how they like feedback. I can edit it any time.',
+  v:{type:'web',img:'oo-profile-c',url:'…/teammates/alex',alt:'A demo teammate profile with strengths, growth areas and aspirations'}},
+ {k:'After the 1:1',h:'Paste it, upload it, or say it.',p:'After a 1:1, I paste my notes, upload a transcript or record a voice note. It pulls out themes, tone, open threads and commitments, and tags the meeting: growth, blocker, motivation, win.',
+  v:{type:'web',img:'oo-meeting-c',url:'…/meetings/analysis',alt:'Meeting analysis: summary, tone, tags and themes',inset:'oo-tone',ialt:'Tone: productive, with tags'}},
+ {k:'Patterns',h:'It remembers what I’d forget.',p:'Every new meeting is read against the whole history, not just the last one. Repeated blockers, avoided topics, dips in motivation. Each pattern comes with the meetings that triggered it and a severity, from “watch” to “action required”.',
+  v:{type:'web',img:'oo-timeline-c',url:'…/teammates/alex/timeline',alt:'Growth timeline: every 1:1, tagged and summarised',inset:'oo-signal',ialt:'A pattern signal marked Watch'}},
+ {k:'Before the 1:1',h:'Five minutes before, I know what to say.',p:'One click before a 1:1: what we covered, what’s still open, the active signals, a coaching focus, the framework that fits this person right now and why, and five to seven questions.',
+  v:{type:'web',img:'oo-brief-c',url:'…/teammates/alex/brief',alt:'Pre-meeting brief: context, open commitments, signals and coaching focus'}},
+ {k:'The detail',h:'One question I might be avoiding.',p:'Every brief has to include it: the uncomfortable but important one. Tools like this tend to make managers more comfortable. <strong>I wanted one that does the opposite.</strong>',
+  v:{type:'line',label:'Required in every brief',line:'The question you might be avoiding.'}},
+ {k:'Commitments',h:'Promises don’t slip between 1:1s.',p:'Commitments, mine and theirs, carry into the next brief until they’re done, carried forward or dropped. A commitment that keeps getting carried forward becomes a pattern of its own.',
+  v:{type:'web',img:'oo-commitments-c',url:'…/teammates/alex/commitments',alt:'Commitments, with mark done, carry forward and drop'}},
+ {k:'It grew',h:'It started as 1:1OS. It became Sidekick.',p:'Once 1:1s worked, I added the rest of the job. <strong>Design critique</strong>, in beta: upload screens and get issues pinned to the exact spot, each with a severity and a suggested fix. <strong>Team insights</strong>: drop in a tracker spreadsheet and get a dashboard of what to act on.',
+  v:{type:'web',img:'oo-critique-c',url:'…/critique',alt:'Design critique: issues pinned to the screen, with severity and suggested fixes',inset:'oo-insights-c',ialt:'Team insights from a tracker spreadsheet'}},
+ {k:'People’s data',h:'It holds the most sensitive notes I write.',p:'So every manager’s data is walled off, in every query and at the database. Voice recordings are deleted once transcribed, and spreadsheets are never stored. Meeting text is analysed by Claude, and voice is transcribed by OpenAI. The demo runs on an invented team.',
+  v:{type:'cards',items:[['Walled off','Per-manager isolation in the app and in the database.'],['Not kept','Audio deleted after transcription. Spreadsheets never stored.'],['Invented','The demo team, and every 1:1 in it, is made up.']]}},
+ {k:'Where it is',h:'Used by one manager so far: me.',p:'I walk into every 1:1 knowing what’s open, what to follow up on and what to ask. It runs on Vercel with 328 automated tests behind it. <a href="https://oneononemanager.vercel.app/" target="_blank" rel="noopener">See it live ↗</a>',
+  v:{type:'web',img:'oo-insights-c',url:'…/insights',alt:'Team insights dashboard'}},
+];
+const N=S.length; $('#deck').style.height=(N*100)+'vh';
+
+/* ---- build copy, beats, rail, alts ---- */
+const copy=$('#copy'), beats=$('#beats'), rail=$('#rail'), alts=$('#alts'), lin=$('#linear');
+const metaHTML=`<div class="meta mono"><div><span class="dim">Role</span><span>Product owner, designer, director of the build</span></div><div><span class="dim">Built</span><span>March 2026, with Claude Code</span></div><div><span class="dim">Stack</span><span>Next.js · Postgres · Claude</span></div><div><span class="dim">Used by</span><span>One manager so far: me</span></div></div><span class="mono dim">Personal project. Demo data only on this page.</span>`;
+function altHTML(v){
+  if(v.type==='cards') return `<div class="cards">${v.items.map(([b,t])=>`<div><b>${b}</b><span class="dim">${t}</span></div>`).join('')}</div>`;
+  if(v.type==='stat') return `<div class="stat">${v.flag?`<span class="flag">${NEEDS}</span>`:''}<span class="n">${v.n}</span><span class="mono">${v.cap}</span></div>`;
+  if(v.type==='pair') return `<div class="pair">${v.imgs.map(([i,c])=>`<figure><span class="shell"><img src="img/${i}.jpg" alt="${c}"></span><figcaption class="mono dim">${c}</figcaption></figure>`).join('')}</div>`;
+  if(v.type==='desktop') return `<div class="desk2"><figure class="dw"><img src="img/sb-web-builder.jpg" alt="Desktop Strategy Builder: legs on the left, payoff and what-ifs on the right"></figure><figure class="dw sm"><img src="img/sb-web-entry.jpg" alt="Opening Strategy Builder from the F&amp;O menu on Upstox web"></figure></div>`;
+  if(v.type==='web') return `<div class="desk2 web"><figure class="dw"><div class="chrome"><i></i><i></i><i></i><span>oneononemanager.vercel.app${v.url||''}</span></div><img src="img/${v.img}.jpg" alt="${v.alt}"></figure>${v.inset?`<figure class="dw sm"><img src="img/${v.inset}.jpg" alt="${v.ialt||''}"></figure>`:''}</div>`;
+  if(v.type==='line') return `<div class="stat quote"><span class="mono">${v.label}</span><span class="q">${v.line}</span></div>`;
+  if(v.type==='outcome') return `<div class="outs">
+    <div><span class="n">1/3</span><span>of strategy traders were new to strategy trading on Upstox.</span></div>
+    <div><span class="n">2.5–3×</span><span>more orders a week from strategy traders than other traders.</span></div>
+    <div><span class="n">30%</span><span>increase in F&amp;O segment revenue.</span></div></div>`;
+  return '';
+}
+S.forEach((s,i)=>{
+  const k=`<div class="k mono"><b>${String(i+1).padStart(2,'0')}</b><span>${s.k}</span></div>`;
+  const head=s.h1?`<h1>${s.h1}</h1>`:`<h2>${s.h}</h2>`;
+  const tag=s.tag?`<span class="tag ${s.tag[0]}">${s.tag[1]}</span>`:'';
+  const el=document.createElement('div'); el.className='slide'; el.innerHTML=k+tag+head+`<p>${s.p}</p>`+(s.meta?metaHTML:'');
+  copy.appendChild(el); s.el=el;
+  const b=document.createElement('div'); b.className='beat'; beats.appendChild(b); s.beat=b;
+  const r=document.createElement('button'); r.type='button'; r.innerHTML=`<span>${s.k}</span><i></i>`; r.setAttribute('aria-label',`Slide ${i+1}: ${s.k}`);
+  r.onclick=()=>toY(b.offsetTop+$('#deck').offsetTop); rail.appendChild(r); s.r=r;
+  if(s.v.type!=='phone'){ const a=document.createElement('div'); a.className='alt'; a.innerHTML=altHTML(s.v); alts.appendChild(a); s.alt=a; }
+  /* linear version */
+  const lc=document.createElement('section'); lc.className='lc';
+  let vis='';
+  if(s.v.type==='phone') vis=`<span class="lphone"><img src="img/${s.v.img}.jpg" alt=""></span>`+(s.v.sheet?`<span class="lphone"><img src="img/sb-adjust.jpg" alt=""></span>`:'')+(s.v.calls?`<ul class="lnotes">${s.v.calls.map(c=>`<li>${c[2]}</li>`).join('')}</ul>`:'');
+  else if(s.v.type==='pair') vis=`<div class="lpair">${s.v.imgs.map(([i,c])=>`<img src="img/${i}.jpg" alt="${c}">`).join('')}</div>`;
+  else vis=`<div class="alt">${altHTML(s.v)}</div>`;
+  lc.innerHTML=k+tag+head+`<p>${s.p}</p>`+(s.meta?metaHTML:'')+vis; lin.appendChild(lc);
+});
+
+/* ---- phone screens (preload all into the zoom layer) ---- */
+const zoom=$('#zoom'), imgs={};
+[...new Set(S.filter(s=>s.v.type==='phone').map(s=>s.v.img))].forEach(n=>{ const im=new Image(); im.src=`img/${n}.jpg`; im.alt=''; zoom.appendChild(im); imgs[n]=im; });
+
+/* ---- apply a slide ---- */
+const device=$('#device'), calls=$('#calls'), label=$('#label'), sheet=$('#sheet'), scrim=$('#scrim');
+let cur=-1;
+const fmt=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+function go(i){
+  if(i===cur) return; const prev=cur; cur=i; const s=S[i], v=s.v;
+  S.forEach((t,j)=>{ t.el.classList.toggle('on',j===i); t.el.classList.toggle('out',j<i); t.r.classList.toggle('on',j===i); t.alt&&t.alt.classList.toggle('on',j===i); });
+  $('#count').textContent=`${String(i+1).padStart(2,'0')} / ${N}`; $('#clk').textContent=fmt(1020+i); 
+  const phone=v.type==='phone';
+  device.classList.toggle('away',!phone); device.classList.toggle('tilt',!!(phone&&v.tilt));
+  calls.innerHTML='';
+  if(!phone) return;
+  Object.entries(imgs).forEach(([n,im])=>im.classList.toggle('show',n===v.img));
+  const [ox,oy,sc]=v.zoom||[50,50,1];
+  zoom.style.transformOrigin=`${ox}% ${oy}%`; zoom.style.transform=`scale(${sc})`;
+  sheet.classList.toggle('up',!!v.sheet); scrim.classList.toggle('on',!!v.sheet);
+  label.className='label tag '+(v.label?v.label[0]+' on':''); label.textContent=v.label?v.label[1]:'';
+  /* callouts land after the zoom settles */
+  const delay=(prev>=0 && (S[prev].v.img!==v.img || (S[prev].v.zoom||[]).join()!==(v.zoom||[]).join()))?650:250;
+  (v.calls||[]).forEach(([x,y,t,side],n)=>{
+    const X=ox+(x-ox)*sc, Y=oy+(y-oy)*sc; if(X<0||X>100||Y<0||Y>100) return;
+    const c=document.createElement('div'); c.className='call '+(side==='l'?'l':'r'); c.style.left=X+'%'; c.style.top=Y+'%';
+    const w=calls.clientWidth, px=X/100*w, reach=side==='l'? px+28 : (w-px)+28;
+    c.innerHTML=`<em style="${side==='l'?`right:0;width:${reach}px`:`left:0;width:${reach}px`}"></em><i></i><span style="${side==='l'?`right:${reach+6}px`:`left:${reach+6}px`}">${t}</span>`;
+    calls.appendChild(c); setTimeout(()=>c.classList.add('on'),delay+n*220);
+  });
+}
+/* which beat is in view */
+let ready=true;
+const deckEl=$('#deck'); let deckVis=getComputedStyle(deckEl).display!=='none';
+addEventListener('resize',()=>{ deckVis=getComputedStyle(deckEl).display!=='none'; });
+const deckOn=()=>deckVis;
+const startY=()=> deckOn()? $('#deck').offsetTop : $('#linear').offsetTop;
+function onScroll(){
+  if(!ready) return;
+  const d=deckEl; if(!deckVis) return;
+  const y=scrollY-d.offsetTop+innerHeight*.5; const i=Math.max(0,Math.min(N-1,Math.floor(y/innerHeight)));
+  go(i);
+}
+addEventListener('scroll',onScroll,{passive:true}); addEventListener('resize',()=>{const c=cur;cur=-1;go(Math.max(0,c));});
+/* always start at slide 1; the intro hands over to it */
+try{ history.scrollRestoration='manual'; }catch(_){}
+scrollTo(0,0);
+/* the artifact viewer can carry the homepage's scroll position into this page after load.
+   Until the reader scrolls themselves, any scroll that arrives is put back to the top. */
+let userMoved=false; const t0=performance.now();
+['wheel','touchstart','keydown','pointerdown'].forEach(ev=>addEventListener(ev,()=>{userMoved=true;},{passive:true,capture:true}));
+/* the artifact viewer can push a stale scroll in after load: until the reader acts, hold the page where we put it */
+let hold=0;
+addEventListener('scroll',()=>{ if(!userMoved && performance.now()-t0<5000 && !gliding && Math.abs(scrollY-hold)>2){ if(lenis) lenis.scrollTo(hold,{immediate:true,force:true}); else scrollTo(0,hold); } },{passive:true});
+addEventListener('load',()=>{ if(!userMoved && !gliding && Math.abs(scrollY-hold)>2){ if(lenis) lenis.scrollTo(hold,{immediate:true,force:true}); else scrollTo(0,hold); } });
+/* the arrival frame (same frame the homepage shutter ends on) is the top of the page.
+   It glides away into slide 1 by itself; scroll up and it is there again. */
+const intro=$('#intro'), introIn=intro.firstElementChild, hud=$('.hud');
+let gliding=false;
+function glide(){
+  if(userMoved) return;
+  const y=startY(); cur=-1; go(0);
+  if(reduce){ hold=y; scrollTo(0,y); return; }
+  gliding=true;
+  if(lenis) lenis.scrollTo(y,{duration:1.2,easing:t=>t<.5?8*t*t*t*t:1-Math.pow(-2*t+2,4)/2,force:true,onComplete:()=>{gliding=false;hold=y;}});
+  else { scrollTo({top:y,behavior:'smooth'}); setTimeout(()=>{gliding=false;hold=y;},1300); }
+}
+Promise.race([ (document.fonts?document.fonts.ready:Promise.resolve()), new Promise(r=>setTimeout(r,700)) ]).then(()=>setTimeout(glide,420));
+/* scroll-linked, so it plays backwards when you scroll up: the frame lifts and fades, the HUD takes over */
+let cfKey='';
+function coverFrame(H0){ const H=H0||intro.offsetHeight||innerHeight, p=Math.max(0,Math.min(1,scrollY/H));
+  const h=Math.max(0,Math.min(1,(p-.55)/.35)), key=p.toFixed(4); if(key===cfKey) return; cfKey=key;
+  introIn.style.opacity=(1-Math.min(1,p*1.6)).toFixed(3); introIn.style.transform=`translate3d(0,${(-48*p).toFixed(1)}px,0)`;
+  hud.style.opacity=h.toFixed(3); hud.style.pointerEvents=h>.5?'':'none'; const hi=h<=.5; if(hud.inert!==hi) hud.inert=hi; intro.inert=p>.5; }
+coverFrame();
+
+/* the loop */
+const barEl=$('#bar'); let bp=0, last=performance.now(), still=0, snapped=true, lastY=scrollY;
+let barKey='';
+function tick(now){ const dt=Math.min(.1,(now-last)/1000); last=now; if(lenis) lenis.raf(now);
+  const d=deckEl, on=deckVis, iH=intro.offsetHeight, dTop=on?d.offsetTop:0;   /* read */
+  coverFrame(iH);                                                              /* write */
+  if(on){ const raw=Math.max(0,Math.min(1,(scrollY-dTop+innerHeight*.5)/(N*innerHeight)));
+    bp+= (raw-bp)*(reduce?1:1-Math.exp(-dt/.32)); const bk=bp.toFixed(4); if(bk!==barKey){ barKey=bk; barEl.style.transform=`scaleX(${bk})`; }
+    /* soft snap: once scrolling settles, glide to the nearest slide if we're close to it */
+    if(Math.abs(scrollY-lastY)<.5){ still+=dt; } else { still=0; snapped=false; } lastY=scrollY;
+    if(ready && !snapped && still>.18 && userMoved && scrollY<dTop-2){ snapped=true; const tgt=scrollY<dTop/2?0:dTop; if(Math.abs(tgt-scrollY)>2) toY(tgt,{duration:.8}); }
+    if(ready && !snapped && still>.18 && userMoved){ snapped=true; const y=scrollY-dTop; const i=Math.round(y/innerHeight); const tgt=dTop+i*innerHeight;
+      if(i>=0&&i<N&&Math.abs(tgt-scrollY)>2&&Math.abs(tgt-scrollY)<innerHeight*.35) toY(tgt,{duration:.8}); }
+  }
+  requestAnimationFrame(tick); }
+requestAnimationFrame(tick);
+
+/* keyboard: arrows move one slide */
+addEventListener('keydown',e=>{ if(!deckVis) return;
+  if(['ArrowDown','ArrowRight','PageDown'].includes(e.key)&&scrollY<$('#deck').offsetTop-2){ e.preventDefault(); toY($('#deck').offsetTop); return; }
+  if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)&&cur===0&&scrollY>2){ e.preventDefault(); toY(0); return; }
+  if(['ArrowDown','ArrowRight','PageDown'].includes(e.key)&&cur<N-1){ e.preventDefault(); S[cur+1].r.click(); }
+  if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)&&cur>0){ e.preventDefault(); S[cur-1].r.click(); } });
+
+/* next case: the homepage shutter, carried over. It rises over the page, the clock runs on to the next case's time,
+   and the next page opens on this exact frame before gliding into its first slide. */
+document.querySelectorAll('[data-next]').forEach(a=>a.addEventListener('click',e=>{
+  if(e.metaKey||e.ctrlKey||e.shiftKey||e.button===1) return;
+  e.preventDefault(); const sh=$('#shut'), ff=$('#sff'), href=a.getAttribute('href'), to=+a.dataset.to;
+  $('#sttl').textContent=a.dataset.title;
+  const [h,m]=$('#clk').textContent.split(':'); const from=+h*60+ +m, span=((to-from)%1440+1440)%1440;
+  ff.textContent=fmt(from); sh.hidden=false; lenis&&lenis.stop();
+  if(reduce){ location.href=href; return; }
+  sh.animate([{transform:'translateY(100%)'},{transform:'translateY(0)'}],{duration:800,easing:'cubic-bezier(.75,0,.15,1)',fill:'forwards'});
+  const o=$('.outro'); o.animate([{transform:'none',opacity:1},{transform:'translate3d(0,-96px,0)',opacity:.4}],{duration:800,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'});
+  const t0=performance.now();
+  (function spin(t){ const p=Math.min(1,(t-t0)/1100), q=1-Math.pow(1-p,4); ff.textContent=fmt(Math.round(from+span*q)%1440); ff.style.fontStretch=(75+(1-q)*37.5)+'%';
+    if(p<1) requestAnimationFrame(spin); else { ff.textContent=fmt(to); location.href=href; } })(t0);
+}));
+/* coming back with the browser's back button: put the page back as it was */
+addEventListener('pageshow',e=>{ if(!e.persisted) return; const sh=$('#shut'); sh.getAnimations().forEach(a=>a.cancel()); sh.hidden=true; $('.outro').getAnimations().forEach(a=>a.cancel()); lenis&&lenis.start(); });
+
+/* back links return to where you were on the day */
+document.querySelectorAll('[data-back]').forEach(a=>a.addEventListener('click',e=>{ try{ /* came straight from the homepage: go back to the exact spot. Came from the other case: go to this case's spot on the day. */ const R=document.referrer&&new URL(document.referrer); if(R && R.origin===location.origin && !/(strategy-builder|pnl-alerts)(\.html)?$/.test(R.pathname) && history.length>1 && a.hasAttribute('data-return')){ e.preventDefault(); history.back(); } }catch(_){} }));
+})();
+</script>
+
+
+</html>
