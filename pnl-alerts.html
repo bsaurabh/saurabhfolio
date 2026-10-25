@@ -176,6 +176,7 @@ p{margin:0}
 .outs div{display:grid;grid-template-columns:256px minmax(0,1fr);gap:8px 24px;align-items:end;padding-block:16px;border-bottom:1px solid var(--rule)}
 .outs .n{font-size:var(--t-n2);line-height:var(--l-n2);font-family:var(--f-num);font-weight:500;font-stretch:75%;letter-spacing:-.04em;font-variant-numeric:tabular-nums lining-nums;grid-row:span 2}
 .flag{display:inline-flex;width:max-content;background:var(--flag-bg);color:var(--flag);border-radius:4px;padding:0 8px;font:600 var(--t-micro)/var(--l-body) var(--f-mono);text-transform:uppercase;letter-spacing:.04em}
+.flag:empty{padding:0;background:none}
 
 /* the two-ticks timeline */
 .ticks{width:min(100%,520px);display:grid;gap:0;border-top:1px solid var(--fg)}
@@ -323,9 +324,9 @@ const S=[
  {k:'Daily, on purpose',h:'Alerts expire daily. Every repeat is deliberate.',p:'Active, triggered and expired alerts sit in one place. Because each alert lasts a day, a trader who sets another one is choosing to.',
   v:{type:'phone',img:'pl-manage',calls:[[30,20,'Active · Triggered · Expired','r']]}},
  {k:'Outcome',h:'Traders came back for it.',p:'Auto-exit later became part of the paid Plus pack.',
-  v:{type:'outcome',rows:[['48%','of traders who set an alert set another the following month','1'],['55–60%','in later cohorts','1'],['18→33%','iOS form completion','1']]}},
+  v:{type:'outcome',rows:[['48%','of traders who set an alert set another the following month',''],['55–60%','in later cohorts',''],['18→33%','iOS form completion','']]}},
  {k:'What happened next',h:'Fewer people can reach it. More of them come back.',p:'Monthly alert creators fell by more than half from February to September 2026. That reflects reach more than demand: the entry point moved into a menu, auto-exit went behind the Plus paywall, and it was switched off for a group of users while the product team tests a new home for it.',
-  v:{type:'stat',n:'↓ ½',cap:'monthly alert creators, Feb to Sep 2026',flag:1}},
+  v:{type:'stat',n:'↓ ½',cap:'monthly alert creators, Feb to Sep 2026'}},
 ];
 const N=S.length; $('#deck').style.height=(N*100)+'vh';
 
