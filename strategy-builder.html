@@ -89,7 +89,7 @@ p{margin:0}
 ::view-transition-old(root),::view-transition-new(root){animation:none}
 .intro{position:relative;z-index:50;height:100vh;height:100svh;overflow:hidden;background:#F3F5F1;color:#0E1620;padding:env(safe-area-inset-top,0px) var(--gr) 88px var(--gl);margin-inline:calc(-1*var(--cgl)) calc(-1*var(--cgr))}
 .intro .in{will-change:opacity,transform}
-.intro.shut{position:fixed;inset:0;height:auto;margin:0;z-index:120;transform:translateY(100%)}
+.intro.shut{position:fixed;inset:0;height:auto;margin:0;z-index:120;transform:translateY(100%);padding-right:calc(var(--gr) + var(--sbw,0px))}
 .intro.shut[hidden]{display:none}
 .intro .ibtn{text-decoration:none;color:inherit}
 .hud{transition:none}
@@ -239,7 +239,6 @@ p{margin:0}
 .outs div:not(:has(.flag)){align-items:center}@media (max-width:900px),(max-height:560px){.lc .outs div:not(:has(.flag)){grid-template-columns:minmax(0,1fr)}}.outs div:not(:has(.flag)) .n{grid-row:auto}
 @media (max-width:1180px){.outs div{grid-template-columns:200px minmax(0,1fr)}}
 </style>
-<style id="frame">html{scrollbar-gutter:stable} /* the transition lock hides the scrollbar; keep its width so frames line up across pages */</style>
 <style id="type">
 /* Type: Playfair Display + Inter. Sits after the base styles and overrides their tokens.
    - Playfair only for the one headline on each screen; everything else is Inter
@@ -506,6 +505,7 @@ document.querySelectorAll('[data-next]').forEach(a=>a.addEventListener('click',e
   e.preventDefault(); const sh=$('#shut'), ff=$('#sff'), href=a.getAttribute('href'), to=+a.dataset.to;
   $('#sttl').textContent=a.dataset.title;
   const [h,m]=$('#clk').textContent.split(':'); const from=+h*60+ +m, span=((to-from)%1440+1440)%1440;
+  document.documentElement.style.setProperty('--sbw',(innerWidth-document.documentElement.clientWidth)+'px'); /* the lock hides the scrollbar; keep the frame centred as if it were there */
   ff.textContent=fmt(from); sh.hidden=false; lenis&&lenis.stop();
   if(reduce){ location.href=href; return; }
   sh.animate([{transform:'translateY(100%)'},{transform:'translateY(0)'}],{duration:800,easing:'cubic-bezier(.75,0,.15,1)',fill:'forwards'});
