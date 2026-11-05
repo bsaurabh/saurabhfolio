@@ -22,7 +22,7 @@
 <meta name="twitter:image" content="https://saurabhbajaj.design/og.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,100..900&family=Hanken+Grotesk:ital,wght@0,300..800;1,300..800&family=Martian+Mono:wdth,wght@75..112,300..600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..800&family=Martian+Mono:wdth,wght@75..112,300..600&family=Playfair+Display:wght@400..700&display=swap">
 <style>
 /* ===== Type + spacing system (shared by every page) =====
    Every size, line-height, padding, margin and gap sits on an 8px grid.
@@ -248,6 +248,40 @@ p{margin:0}
 @media (max-width:720px){ .lc .stat .n{font-size:var(--t-n1);line-height:var(--l-n1)} }
 .outs div:not(:has(.flag)){align-items:center}@media (max-width:900px),(max-height:560px){.lc .outs div:not(:has(.flag)){grid-template-columns:minmax(0,1fr)}}.outs div:not(:has(.flag)) .n{grid-row:auto}
 @media (max-width:1180px){.outs div{grid-template-columns:200px minmax(0,1fr)}}
+</style>
+<style id="type">
+/* Type: Playfair Display + Inter. Sits after the base styles and overrides their tokens.
+   - Playfair only for the one headline on each screen; everything else is Inter
+   - Numbers and the big clock in Inter, tabular; decimals dimmed on hero numbers
+   - Martian Mono only for micro labels and timestamps
+   - Contrast comes from family, size and tone: big headline in full ink, body one tone softer, small mono labels
+   - 8px grid, nothing under 12px */
+html:root{ --f-clock:"Playfair Display",Georgia,serif; --f-body:"Inter",system-ui,sans-serif; --f-num:"Inter",system-ui,sans-serif;
+  --t-lead:16px; --l-lead:24px; --t-title:24px; --l-title:32px;
+  --t-n1:96px; --l-n1:96px; --t-n2:48px; --l-n2:48px; --t-clock:200px; --l-clock:176px;
+  --t-h1:96px; --l-h1:96px; --t-h1s:72px; --l-h1s:72px; --t-h2:64px; --l-h2:64px }
+@media (max-width:1180px){
+  html:root{ --t-n1:72px; --l-n1:72px; --t-n2:40px; --l-n2:40px; --t-clock:144px; --l-clock:128px;
+    --t-h1:72px; --l-h1:72px; --t-h1s:56px; --l-h1s:56px; --t-h2:48px; --l-h2:56px } }
+@media (max-width:720px){
+  html:root{ --t-n1:56px; --l-n1:56px; --t-n2:32px; --l-n2:40px; --t-clock:80px; --l-clock:80px;
+    --t-h1:48px; --l-h1:48px; --t-h1s:40px; --l-h1s:48px; --t-h2:40px; --l-h2:40px } }
+@media (min-width:1181px) and (max-height:860px){
+  html:root{ --t-h2:56px; --l-h2:56px; --t-h1s:64px; --l-h1s:64px } }
+
+/* headlines */
+html:root h1,html:root h2{ font-weight:500; font-stretch:100%; letter-spacing:-.02em; max-width:18ch }
+/* body one tone softer than the headline; emphasis back in full ink */
+html:root p.copy,html:root .copy p,html:root .slide p,html:root .lead-in p{ color:var(--dim); font-weight:400 }
+html:root p.copy strong,html:root .copy p strong,html:root .slide p strong{ color:var(--fg); font-weight:600 }
+/* numbers: Inter, tabular, decimals dimmed; never the serif */
+html:root .num,html:root .big,html:root .stat .n,html:root .outs .n,html:root .tk-row em,html:root .ff,html:root .intro .iff{
+  font-family:"Inter",system-ui,sans-serif; font-weight:600; font-stretch:100%; letter-spacing:-.045em; font-variant-numeric:tabular-nums lining-nums }
+html:root .ff,html:root .intro .iff{ letter-spacing:-.055em }
+html:root .dimd{ opacity:.42 }
+/* card titles and P&L tick labels: sans, so the serif stays the one headline per screen */
+html:root .cards b,html:root .tk-row b{ font-family:"Inter",system-ui,sans-serif; font-weight:600; font-stretch:100%; letter-spacing:-.02em }
+html:root svg .q{ font-family:"Inter",system-ui,sans-serif; font-weight:700 }
 </style>
 
 <div class="intro" id="intro"><div class="in">
