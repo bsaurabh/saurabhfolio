@@ -280,6 +280,7 @@ button{font:inherit;color:inherit}
 .arrive h2{margin-top:32px}
 .ff{font-size:var(--t-clock);line-height:var(--l-clock);font-family:var(--f-num);font-weight:500;font-stretch:75%;letter-spacing:-.04em;font-variant-numeric:tabular-nums lining-nums;letter-spacing:-.06em;margin-top:24px;color:#0E1620}
 </style>
+<style id="frame">html{scrollbar-gutter:stable} /* the transition lock hides the scrollbar; keep its width so frames line up across pages */</style>
 <style id="type">
 /* Type: Playfair Display + Inter. Sits after the base styles and overrides their tokens.
    - Playfair only for the one headline on each screen; everything else is Inter
@@ -822,7 +823,7 @@ function openCase(e){
   $('#caseNote').textContent=go?'':'This case study is next on the build list.';
   cs.hidden=false; cs.scrollTop=0; root.style.overflow='hidden'; window.__lenis&&window.__lenis.stop();
   if(reduce){ if(go) location.href=href; else $('#closeCase').focus(); return; }
-  cs.animate([{transform:'translateY(100%)'},{transform:'translateY(0)'}],{duration:800,easing:'cubic-bezier(.75,0,.15,1)'});
+  cs.animate([{transform:'translateY(100%)'},{transform:'translateY(0)'}],{duration:800,easing:'cubic-bezier(.75,0,.15,1)'}).onfinish=()=>{ if(!cs.hidden) root.style.background='#F3F5F1'; }; /* the kept scrollbar strip takes the shutter colour once it has landed */
   under=[...document.querySelector('main').children].map(e=>e.querySelector(':scope > .stage')||e).filter(e=>{ const r=e.getBoundingClientRect(); return r.bottom>0&&r.top<innerHeight; }); /* only what is on screen: a viewport-sized layer rasters at once */
   under.forEach(e=>e.animate([{transform:'none',opacity:1},{transform:'translate3d(0,-96px,0)',opacity:.4}],{duration:800,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'}));
   const from=nowMin(), t0=performance.now(), ff=$('#ff'), span=((to-from)%1440+1440)%1440;
@@ -830,7 +831,7 @@ function openCase(e){
     if(p<1) requestAnimationFrame(spin); else { ff.textContent=fmt(to); if(go) location.href=href; } })(t0);
   if(go){ cs.tabIndex=-1; cs.focus({preventScroll:true}); } else $('#closeCase').focus();
 }
-function closeCase(){ const done=()=>{cs.hidden=true;root.style.overflow='';window.__lenis&&window.__lenis.start();last&&last.focus();};
+function closeCase(){ root.style.background=''; const done=()=>{cs.hidden=true;root.style.overflow='';window.__lenis&&window.__lenis.start();last&&last.focus();};
   if(reduce) return done();
   unlift(600);
   cs.animate([{transform:'translateY(0)'},{transform:'translateY(100%)'}],{duration:600,easing:'cubic-bezier(.75,0,.15,1)'}).onfinish=done; }
@@ -838,7 +839,7 @@ document.querySelectorAll('[data-case]').forEach(b=>b.addEventListener('click',o
 $('#closeCase').addEventListener('click',closeCase);
 addEventListener('keydown',e=>{ if(e.key==='Escape'&&!cs.hidden) closeCase(); });
 /* coming back from a case page restores the shutter state */
-addEventListener('pageshow',()=>{ unlift(0); cs.hidden=true; root.style.overflow=''; window.__lenis&&window.__lenis.start(); });
+addEventListener('pageshow',()=>{ unlift(0); cs.hidden=true; root.style.overflow=''; root.style.background=''; window.__lenis&&window.__lenis.start(); });
 /* Back to the day: put the reader back on the exact spot they left. Late layout (fonts, images, panel fitting)
    can shift the page, so the spot is re-applied until things settle or the reader scrolls themselves. */
 (()=>{ let st=null; try{ st=history.state; }catch(_){}
