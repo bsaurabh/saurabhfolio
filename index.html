@@ -129,9 +129,9 @@ p{margin:0}
 .panel,.panel .sub{grid-template-columns:minmax(0,1fr)}
 .panel .head{display:grid;gap:16px}
 .panel .sub{position:absolute;inset:0;display:grid;align-content:center;gap:32px;padding:inherit}
-.phones{display:flex;gap:16px;will-change:transform}
+.phones{display:flex;align-items:flex-start;gap:16px;will-change:transform}
 .ph{flex:0 0 auto;width:clamp(120px,13vw,200px);background:#000;border-radius:24px;padding:8px;box-shadow:0 24px 48px -24px rgba(14,22,32,.30),0 8px 16px -8px rgba(14,22,32,.16)}
-.ph img{display:block;width:100%;border-radius:16px}
+.ph img{display:block;width:100%;aspect-ratio:9/20;object-fit:cover;object-position:top;border-radius:16px}
 .ph:nth-child(even){margin-top:40px}
 .open-btn{display:inline-flex;align-items:center;gap:16px;border:1.5px solid currentColor;background:none;border-radius:999px;padding:8px 8px 8px 24px;cursor:pointer;width:max-content;color:inherit;font:600 var(--t-body)/var(--l-body) var(--f-body);text-decoration:none}
 .open-btn{transition:background .2s cubic-bezier(.22,1,.36,1),color .2s cubic-bezier(.22,1,.36,1),transform .2s cubic-bezier(.22,1,.36,1)}
@@ -363,11 +363,11 @@ html:root svg .q{ font-family:"Inter",system-ui,sans-serif; font-weight:700 }
       <div class="sub" data-from=".0" data-to=".55">
         <div class="head"><div class="stamp"><span class="t">09:15</span><span class="mono">Strategy Builder</span></div><h2>Build the strategy on the chain.</h2></div>
         <div class="phones">
-          <div class="ph"><img src="img/sb-start.jpg" alt="Start with a custom strategy"></div>
-          <div class="ph"><img src="img/sb-chain.jpg" alt="Legs picked on the option chain"></div>
-          <div class="ph"><img src="img/sb-edit.jpg" alt="Editor and payoff graph"></div>
-          <div class="ph"><img src="img/sb-review.jpg" alt="Review and swipe to place order"></div>
-          <div class="ph"><img src="img/sb-presets.jpg" alt="Preset strategies"></div>
+          <div class="ph"><img src="img/ph-sb-start.jpg" alt="Start with a custom strategy"></div>
+          <div class="ph"><img src="img/ph-sb-chain.jpg" alt="Legs picked on the option chain"></div>
+          <div class="ph"><img src="img/ph-sb-edit.jpg" alt="Editor and payoff graph"></div>
+          <div class="ph"><img src="img/ph-sb-review.jpg" alt="Review and swipe to place order"></div>
+          <div class="ph"><img src="img/ph-sb-presets.jpg" alt="Preset strategies"></div>
         </div>
         <div class="lead-in"><p class="copy">Upstox traders were leaving the app to build options strategies elsewhere. As the sole designer, I brought it in-house.</p><button class="open-btn" type="button" data-case="sb" data-to="555" data-href="strategy-builder.html" data-title="Bringing strategy trading in-house.">Open the case study <span>→</span></button></div>
       </div>
