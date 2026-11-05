@@ -283,6 +283,13 @@ html:root .dimd{ opacity:.42 }
 html:root .cards b,html:root .tk-row b{ font-family:"Inter",system-ui,sans-serif; font-weight:600; font-stretch:100%; letter-spacing:-.02em }
 html:root svg .q{ font-family:"Inter",system-ui,sans-serif; font-weight:700 }
 </style>
+<style id="edge">
+/* one left edge: header, slides and the closing section sit on the same 1392 column as the cover */
+.hud{ padding-left:max(var(--gl),calc((100% - 1392px)/2 + var(--gl))); padding-right:max(var(--gr),calc((100% - 1392px)/2 + var(--gr))) }
+.pin{ padding-left:max(var(--gl),calc((100% - 1392px)/2 + var(--gl))); padding-right:max(calc(var(--cgr) + 72px),max(var(--gr),calc((100% - 1392px)/2 + var(--gr)))) }
+.outro{ max-width:none; width:min(1280px,calc(100% - 2*(var(--gl) - var(--cgl)))) }
+.linear{ padding-inline:calc(var(--gl) - var(--cgl)) }
+</style>
 
 <div class="intro" id="intro"><div class="in">
   <div class="ibar"><span class="mono">Case study</span><a class="ibtn mono" href="./#s1700" data-back data-return>Back to the day</a></div>

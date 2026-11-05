@@ -314,6 +314,10 @@ html:root .dimd{ opacity:.42 }
 html:root .cards b,html:root .tk-row b{ font-family:"Inter",system-ui,sans-serif; font-weight:600; font-stretch:100%; letter-spacing:-.02em }
 html:root svg .q{ font-family:"Inter",system-ui,sans-serif; font-weight:700 }
 </style>
+<style id="edge">
+/* one left edge: header, scene captions and work panels sit on the same 1392 column as the intro, 18:30 and 21:00 */
+.hud,.cap,.panel{ padding-left:max(var(--gl),calc((100% - 1392px)/2 + var(--gl))); padding-right:max(var(--gr),calc((100% - 1392px)/2 + var(--gr))) }
+</style>
 </head>
 <body>
 <header class="hud">
